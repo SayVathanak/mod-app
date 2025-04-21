@@ -26,16 +26,17 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         try {
             const fileType = file.mimetype;
 
-            // Set folder based on file type
-            const folder = fileType === "application/pdf"
-                ? "mediaverse/books/pdf"
-                : "mediaverse/books/covers";
-
-            const resource_type = fileType === "application/pdf" ? "raw" : "image";
+            const isPDF = fileType === "application/pdf";
+            const folder = isPDF ? "mediaverse/books/pdf" : "mediaverse/books/covers";
+            const resource_type = isPDF ? "raw" : "image";
 
             const result = await cloudinary.uploader.upload(file.filepath, {
                 folder,
                 resource_type,
+                use_filename: true,
+                unique_filename: false,
+                public_id: file.originalFilename?.split(".")[0],
+                flags: "attachment", // ✅ Triggers download behavior
             });
 
             return res.status(200).json({ url: result.secure_url });
