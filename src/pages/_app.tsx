@@ -1,6 +1,14 @@
-import "@/styles/globals.css";
-import type { AppProps } from "next/app";
+// pages/_app.tsx
+import { ChakraProvider } from "@chakra-ui/react";
+import { AppProps } from "next/app";
+import { AuthProvider } from "@/context/AuthContext";
 
 export default function App({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />;
+  return (
+    <ChakraProvider>
+      <AuthProvider>
+        <Component {...pageProps} />
+      </AuthProvider>
+    </ChakraProvider>
+  );
 }
