@@ -1,16 +1,22 @@
+// tailwind.config.js
+const { theme } = require("@chakra-ui/react");
+
 module.exports = {
-    content: ['./src/**/*.{html,js,jsx,ts,tsx}'],
-    theme: {
-        extend: {
-            colors: {
-                background: 'var(--background)',
-                foreground: 'var(--foreground)',
-            },
-            fontFamily: {
-                sans: ['Arial', 'Helvetica', 'sans-serif'],
-                mono: ['Courier', 'monospace'],
-            },
-        },
+  content: [
+    "./pages/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        brand: theme.colors.blue,
+        accent: theme.colors.purple,
+      },
+      fontFamily: {
+        sans: theme.fonts.body.split(", "),
+        heading: theme.fonts.heading.split(", "),
+      },
     },
-    plugins: [],
+  },
+  plugins: [],
 };
