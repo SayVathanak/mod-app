@@ -1,0 +1,80 @@
+Folder PATH listing
+Volume serial number is D2A3-B43A
+C:.
+|   folder_structure.txt
+|   
++---components
++---context
+|       AuthContext.tsx
+|       
++---lib
+|       cloudinary.ts
+|       mongodb.ts
+|       
++---models
+|       Book.ts
+|       Map.ts
+|       News.ts
+|       Users.ts
+|       Video.ts
+|       
++---pages
+|   |   index.tsx
+|   |   _app.tsx
+|   |   _document.tsx
+|   |   
+|   +---admin
+|   |       books.tsx
+|   |       index.tsx
+|   |       maps.tsx
+|   |       news.tsx
+|   |       videos.tsx
+|   |       
+|   +---api
+|   |   |   upload.ts
+|   |   |   
+|   |   +---auth
+|   |   |       login.ts
+|   |   |       protected.ts
+|   |   |       register.ts
+|   |   |       
+|   |   +---books
+|   |   |       index.ts
+|   |   |       
+|   |   +---maps
+|   |   |       index.ts
+|   |   |       
+|   |   +---news
+|   |   |       index.ts
+|   |   |       [id].ts
+|   |   |       
+|   |   \---videos
+|   |           index.ts
+|   |           
+|   +---auth
+|   |       login.tsx
+|   |       register.tsx
+|   |       
+|   +---books
+|   |       index.tsx
+|   |       
+|   +---maps
+|   |       index.tsx
+|   |       
+|   +---news
+|   |       index.tsx
+|   |       [id].tsx
+|   |       
+|   \---videos
+|           index.tsx
+|           
++---styles
+|       globals.css
+|       
++---theme
+|       index.ts
+|       
++---types
+\---utils
+        mongodb.ts
+        

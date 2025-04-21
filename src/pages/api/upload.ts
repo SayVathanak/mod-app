@@ -1,14 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import cloudinary from "@/lib/cloudinary";
+import { IncomingForm } from "formidable";
+import fs from "fs";
 
 export const config = {
     api: {
         bodyParser: false,
     },
 };
-
-import { IncomingForm } from "formidable";
-import fs from "fs";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method !== "POST") {
@@ -25,20 +24,31 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
         try {
             const fileType = file.mimetype;
+            let folder = "mediaverse/others"; // Default folder
+            let resource_type: "image" | "video" | "raw" = "raw"; // Default resource type
 
-            const isPDF = fileType === "application/pdf";
-            const folder = isPDF ? "mediaverse/books/pdf" : "mediaverse/books/covers";
-            const resource_type = isPDF ? "raw" : "image";
+            // Handle different file types (image, video, PDF, etc.)
+            if (fileType.startsWith("image/")) {
+                folder = "mediaverse/books/covers"; // For image files
+                resource_type = "image"; // Image files
+            } else if (fileType.startsWith("video/")) {
+                folder = "mediaverse/videos"; // For video files (Cloudinary will create this folder)
+                resource_type = "video"; // Video files
+            } else if (fileType === "application/pdf") {
+                folder = "mediaverse/books/pdf"; // For PDF files
+                resource_type = "raw"; // PDF files treated as raw
+            }
 
+            // Upload the file to Cloudinary
             const result = await cloudinary.uploader.upload(file.filepath, {
-                folder,
-                resource_type,
+                resource_type, // specify resource type
+                folder, // specify the Cloudinary folder
                 use_filename: true,
                 unique_filename: false,
                 public_id: file.originalFilename?.split(".")[0],
-                flags: "attachment", // ✅ Triggers download behavior
             });
 
+            // Return the URL of the uploaded file
             return res.status(200).json({ url: result.secure_url });
         } catch (error) {
             console.error("Upload error:", error);

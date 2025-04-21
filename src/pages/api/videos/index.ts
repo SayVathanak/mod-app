@@ -11,8 +11,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (req.method === "POST") {
-        const { title, description, videoUrl } = req.body;
-        const newVideo = new Video({ title, description, videoUrl });
+        const { title, description, videoUrl, thumbnailUrl } = req.body;
+        const newVideo = new Video({ title, description, videoUrl, thumbnailUrl });
         await newVideo.save();
         return res.status(201).json(newVideo);
     }

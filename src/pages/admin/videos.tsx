@@ -29,10 +29,12 @@ export default function AdminVideos() {
         setVideos(data);
     };
 
-    const handleUpload = async (): Promise<string | null> => {
-        if (!videoFile) return null;
+    const [thumbnail, setThumbnail] = useState<File | null>(null);
+
+    const handleUpload = async (file: File | null): Promise<string | null> => {
+        if (!file) return null;
         const formData = new FormData();
-        formData.append("file", videoFile);
+        formData.append("file", file);
         const res = await fetch("/api/upload", {
             method: "POST",
             body: formData,
@@ -43,18 +45,20 @@ export default function AdminVideos() {
 
     const createVideo = async () => {
         setUploading(true);
-        const videoUrl = await handleUpload();
+        const videoUrl = await handleUpload(videoFile);
+        const thumbnailUrl = await handleUpload(thumbnail);
         setUploading(false);
 
         await fetch("/api/videos", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title, description, videoUrl }),
+            body: JSON.stringify({ title, description, videoUrl, thumbnailUrl }),
         });
 
         setTitle("");
         setDescription("");
         setVideoFile(null);
+        setThumbnail(null);
         fetchVideos();
     };
 
@@ -81,6 +85,11 @@ export default function AdminVideos() {
                     type="file"
                     accept="video/*"
                     onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                />
+                <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setThumbnail(e.target.files?.[0] || null)}
                 />
                 <Button onClick={createVideo} isLoading={uploading} colorScheme="teal">
                     Upload Video
