@@ -69,19 +69,34 @@ interface KhmerTitleProps extends HeadingProps {
 }
 
 // Define a style component for the Khmer title to ensure consistent application
-const KhmerTitle = ({ children, ...props }: KhmerTitleProps) => {
-  const titleColor = useColorModeValue("brand.500", "brand.400");
+// const KhmerTitle = ({ children, ...props }: KhmerTitleProps) => {
+//   const titleColor = useColorModeValue("brand.500", "brand.400");
 
+//   return (
+//     <Heading
+//       size="md"
+//       sx={{
+//         fontFamily: "'Moul', 'Dangrek', 'Battambang', sans-serif !important",
+//         fontWeight: "400",
+//         letterSpacing: "0.5px"
+//       }}
+//       color={titleColor}
+//       ml={3}
+//       {...props}
+//     >
+//       {children}
+//     </Heading>
+//   );
+// };
+const KhmerTitle = ({ children, ...props }: KhmerTitleProps) => {
   return (
     <Heading
       size="md"
-      sx={{
-        fontFamily: "'Moul', 'Dangrek', 'Battambang', sans-serif !important",
-        fontWeight: "400",
-        letterSpacing: "0.5px"
-      }}
-      color={titleColor}
       ml={3}
+      fontWeight="400"
+      letterSpacing="0.5px"
+      color="#FFD700" // solid gold
+      fontFamily="'Moul', 'Dangrek', 'Battambang', sans-serif"
       {...props}
     >
       {children}
@@ -235,9 +250,9 @@ export default function MainLayout({ children, showBreadcrumb = false }: MainLay
 
   // Responsive variables
   const isMobile = useBreakpointValue({ base: true, md: false });
-  const headerBg = useColorModeValue("white", "dark.800");
+  const headerBg = useColorModeValue("dark.900", "dark.800");
   const borderColor = useColorModeValue("gray.200", "dark.700");
-  const mainBg = useColorModeValue("gray.50", "dark.900");
+  const mainBg = useColorModeValue("dark.900", "dark.900");
   const drawerBg = useColorModeValue("white", "dark.800");
   const drawerColor = useColorModeValue("gray.800", "white");
 
