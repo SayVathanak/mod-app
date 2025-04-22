@@ -188,6 +188,10 @@ const Header = ({ news = [], books = [], isLoading = false }: HeaderProps) => {
 
   // Get dropdown content based on path
   const getDropdownContent = (path: string): ContentItem[] => {
+    if (isLoading) {
+      // Return empty array when loading
+      return [];
+    }
     return contentMap[path] || [];
   };
 
@@ -261,7 +265,7 @@ const Header = ({ news = [], books = [], isLoading = false }: HeaderProps) => {
                 <Text
                   className="khmer-heading"
                   ml={3}
-                  fontSize={{ base: "sm", md: "md" }}
+                  fontSize={{ base: "md", md: "md" }}
                   fontWeight="medium"
                   color={COLORS.accent.gold}
                   display={{ base: "block", sm: "block" }}
@@ -310,19 +314,29 @@ const Header = ({ news = [], books = [], isLoading = false }: HeaderProps) => {
                       bg={COLORS.black[800]}
                       borderColor={COLORS.darkGreen[500]}
                     >
-                      {getDropdownContent(item.href).map((content) => (
-                        <MenuItem
-                          key={content.id}
-                          as={NextLink}
-                          href={`${item.href}/${content.slug}`}
-                          fontSize="sm"
-                          bg={COLORS.black[800]}
-                          color={COLORS.text.light}
-                          _hover={{ bg: COLORS.black[700], color: COLORS.accent.brightGold }}
-                        >
-                          {content.title}
-                        </MenuItem>
-                      ))}
+                      {isLoading ? (
+                        // Show loading skeletons when content is loading
+                        Array(3).fill(0).map((_, i) => (
+                          <MenuItem key={i} bg={COLORS.black[800]}>
+                            <Skeleton height="20px" width="100%" />
+                          </MenuItem>
+                        ))
+                      ) : (
+                        // Original content rendering
+                        getDropdownContent(item.href).map((content) => (
+                          <MenuItem
+                            key={content.id}
+                            as={NextLink}
+                            href={`${item.href}/${content.slug}`}
+                            fontSize="sm"
+                            bg={COLORS.black[800]}
+                            color={COLORS.text.light}
+                            _hover={{ bg: COLORS.black[700], color: COLORS.accent.brightGold }}
+                          >
+                            {content.title}
+                          </MenuItem>
+                        ))
+                      )}
                       <MenuItem
                         as={NextLink}
                         href={item.href}
@@ -525,7 +539,7 @@ const Header = ({ news = [], books = [], isLoading = false }: HeaderProps) => {
                   </NextLink>
 
                   {/* Dropdown items for mobile */}
-                  {item.hasDropdown && getDropdownContent(item.href).length > 0 && (
+                  {item.hasDropdown && (
                     <VStack
                       spacing={0}
                       align="stretch"
@@ -533,23 +547,38 @@ const Header = ({ news = [], books = [], isLoading = false }: HeaderProps) => {
                       borderBottomWidth="1px"
                       borderColor={COLORS.darkGreen[500]}
                     >
-                      {getDropdownContent(item.href).map((content) => (
-                        <NextLink key={content.id} href={`${item.href}/${content.slug}`} passHref>
+                      {isLoading ? (
+                        // Show loading skeletons for mobile
+                        Array(3).fill(0).map((_, i) => (
                           <Box
-                            as="a"
+                            key={i}
                             px={8}
                             py={3}
-                            fontSize="sm"
-                            color={COLORS.text.muted}
-                            _hover={{ bg: COLORS.black[800], color: COLORS.accent.brightGold }}
-                            onClick={onClose}
                             borderBottomWidth="1px"
                             borderBottomColor={COLORS.black[800]}
                           >
-                            {content.title}
+                            <Skeleton height="20px" width="100%" />
                           </Box>
-                        </NextLink>
-                      ))}
+                        ))
+                      ) : (
+                        getDropdownContent(item.href).map((content) => (
+                          <NextLink key={content.id} href={`${item.href}/${content.slug}`} passHref>
+                            <Box
+                              as="a"
+                              px={8}
+                              py={3}
+                              fontSize="sm"
+                              color={COLORS.text.muted}
+                              _hover={{ bg: COLORS.black[800], color: COLORS.accent.brightGold }}
+                              onClick={onClose}
+                              borderBottomWidth="1px"
+                              borderBottomColor={COLORS.black[800]}
+                            >
+                              {content.title}
+                            </Box>
+                          </NextLink>
+                        ))
+                      )}
                       <NextLink href={item.href} passHref>
                         <Box
                           as="a"
