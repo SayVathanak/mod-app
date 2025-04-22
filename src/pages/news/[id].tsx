@@ -1,4 +1,4 @@
-// pages/news/[id].tsx - with improved error handling
+// pages/news/[id].tsx - with improved error handlinga
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import {
