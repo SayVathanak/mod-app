@@ -1,269 +1,717 @@
-import { useEffect, useState } from "react";
-import {
-  Box,
-  Heading,
-  SimpleGrid,
-  Link,
-  Text,
-  Flex,
-  Icon,
-  Button,
-  VStack,
-  HStack,
-  Container,
-  Grid,
-  GridItem,
-  Image,
-  Badge,
-  Skeleton,
-  SkeletonText,
-} from "@chakra-ui/react";
+import { Box, Container, Heading, Text, Button, Stack, Flex, SimpleGrid, Image, Icon, VStack, HStack, Badge, useColorModeValue } from "@chakra-ui/react";
+import { useState, useEffect } from "react";
 import NextLink from "next/link";
-import { FaNewspaper, FaBook, FaMap, FaVideo, FaArrowRight, FaClock } from "react-icons/fa";
+import { FaBook, FaVideo, FaMap, FaNewspaper, FaArrowRight, FaCalendarAlt, FaPlay } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { SignUpButton } from "@clerk/nextjs";
-
-// Define interfaces for our news items
-interface NewsItem {
-  _id: string | number;
-  title: string;
-  body: string;
-  category?: string;
-  createdAt?: string;
-  publishedAt?: string;
-  imageUrl?: string;
-}
 
 const MotionBox = motion(Box);
+const MotionFlex = motion(Flex);
+
+// Custom color palette - Military dark theme
+const colors = {
+  darkBg: "#0A0D0B", // Very dark green/black
+  darkBgAlt: "#121A14", // Slightly lighter dark green
+  darkGreen: "#1A2C1F", // Dark green
+  midGreen: "#264D33", // Medium green
+  lightGreen: "#3E7E50", // Light green accent
+  gold: "#BFA46F", // Military gold
+  brightGold: "#D4B86A", // Brighter gold for highlights
+  mutedGold: "#8F7B4E", // Muted gold for secondary elements
+  textLight: "#E0E0E0", // Light text
+  textMuted: "#A0A0A0", // Muted text
+};
+
+type NewsItem = {
+  _id: string;
+  title: string;
+  body: string;
+  imageUrl?: string;
+  createdAt: string;
+};
+
+type Book = {
+  _id: string;
+  title: string;
+  author: string;
+  coverUrl?: string;
+};
+
+type Video = {
+  _id: string;
+  title: string;
+  description: string;
+  thumbnailUrl?: string;
+};
+
+type SlideContent = {
+  title: string;
+  description: string;
+  imageUrl: string;
+  buttonText: string;
+  buttonLink: string;
+};
 
 export default function Home() {
   const [news, setNews] = useState<NewsItem[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [books, setBooks] = useState<Book[]>([]);
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchNews = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
+  // Fixed color values for dark military theme
+  const cardBg = colors.darkBgAlt;
+  const cardBorder = colors.midGreen;
+  const textColor = colors.textLight;
+  const headingColor = colors.gold;
+  const accentColor = "green"; // For Chakra UI components
 
-        const response = await fetch('/api/news');
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch news');
-        }
-
-        const data = await response.json();
-
-        // Sort by date (newest first) and limit to 4 items
-        const sortedNews = data
-          .sort((a: NewsItem, b: NewsItem) => {
-            const dateA = new Date(a.createdAt || a.publishedAt || '').getTime();
-            const dateB = new Date(b.createdAt || b.publishedAt || '').getTime();
-            return dateB - dateA;
-          })
-          .slice(0, 4);
-
-        setNews(sortedNews);
-      } catch (error) {
-        console.error("Failed to fetch news:", error);
-        setError("Could not load the latest news");
-
-        // Fallback to mock data if API fails
-        const mockNews: NewsItem[] = [
-          {
-            _id: 1,
-            title: "Progress Report on National Defense Strategy Implementation",
-            body: "The Ministry of Defense announces significant progress in implementing the new national defense strategy...",
-            category: "Defense",
-            createdAt: "2025-04-20T12:00:00Z",
-            imageUrl: "/images/news/defense-strategy.jpg"
-          },
-          // ... other mock items if needed
-        ];
-
-        setNews(mockNews);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchNews();
-  }, []);
-
-  const formatDate = (dateString: string | undefined): string => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    }).format(date);
+  // Animation variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
   };
 
-  const sections = [
-    { name: "news", icon: FaNewspaper, description: "Stay updated with the latest news and stories" },
-    { name: "books", icon: FaBook, description: "Explore our digital library of books and publications" },
-    { name: "maps", icon: FaMap, description: "Discover interactive maps and geographical data" },
-    { name: "videos", icon: FaVideo, description: "Watch educational and entertaining videos" },
+  // Slides for the hero slider
+  const slides: SlideContent[] = [
+    {
+      title: "Digital Library Resources",
+      description: "Access thousands of books, videos, maps, and academic resources. Expand your knowledge with our comprehensive digital collection.",
+      imageUrl: "/images/slider/library.jpg",
+      buttonText: "Explore Books",
+      buttonLink: "/books",
+    },
+    {
+      title: "Video Learning Center",
+      description: "Watch educational videos, tutorials, and lectures from experts in various fields. Visual learning made accessible.",
+      imageUrl: "/images/slider/video.jpg",
+      buttonText: "Watch Videos",
+      buttonLink: "/videos",
+    },
+    {
+      title: "Historical Maps Collection",
+      description: "Discover rare historical maps and geographical resources. Navigate through time with our map collection.",
+      imageUrl: "/images/slider/maps.jpg",
+      buttonText: "View Maps",
+      buttonLink: "/maps",
+    }
+  ];
+
+  const fetchRecentContent = async () => {
+    setIsLoading(true);
+    try {
+      // Fetch recent content in parallel
+      const [newsRes, booksRes, videosRes] = await Promise.all([
+        fetch("/api/news?limit=3"),
+        fetch("/api/books?limit=4"),
+        fetch("/api/videos?limit=3")
+      ]);
+
+      if (!newsRes.ok || !booksRes.ok || !videosRes.ok) {
+        throw new Error("One or more API calls failed");
+      }
+
+      const newsData = await newsRes.json();
+      const booksData = await booksRes.json();
+      const videosData = await videosRes.json();
+
+      setNews(newsData);
+      setBooks(booksData);
+      setVideos(videosData);
+    } catch (error) {
+      console.error("Error fetching content:", error);
+      // Set empty arrays as fallback
+      setNews([]);
+      setBooks([]);
+      setVideos([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecentContent();
+
+    // Auto-advance slides
+    const interval = setInterval(() => {
+      setActiveSlide(prev => (prev + 1) % slides.length);
+    }, 6000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const resourceItems = [
+    { title: "Books", icon: FaBook, color: colors.brightGold, link: "/books", count: books.length },
+    { title: "Videos", icon: FaVideo, color: colors.gold, link: "/videos", count: videos.length },
+    { title: "Maps", icon: FaMap, color: colors.gold, link: "/maps", count: 0 },
+    { title: "News", icon: FaNewspaper, color: colors.mutedGold, link: "/news", count: news.length },
   ];
 
   return (
-    <Box>
-      {/* Hero Section */}
-      <MotionBox
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        py={[10, 20]}
-        px={6}
-        textAlign="center"
-        borderRadius="lg"
-        mb={12}
-        bgGradient="linear(to-b, dark.800, dark.900)"
-      >
-        <VStack spacing={6} maxW="800px" mx="auto">
-          <Heading as="h1" size="2xl" bgGradient="linear(to-r, brand.500, teal.400)" bgClip="text">
-            Your Gateway to Digital Media
-          </Heading>
-          <Text fontSize="xl" color="gray.300" maxW="600px">
-            Explore a world of news, books, maps, and videos in one centralized platform.
-            Access quality content anytime, anywhere.
-          </Text>
-          <HStack spacing={4} pt={4}>
-            <SignUpButton mode="modal">
-              <Button size="lg" variant="outline">Sign Up</Button>
-            </SignUpButton>
-          </HStack>
-        </VStack>
-      </MotionBox>
-
-      {/* Featured News Section */}
-      <Container maxW="container.xl" mb={16}>
-        <Flex justify="space-between" align="center" mb={6}>
-          <Heading size="lg" color="white">
-            Latest News
-          </Heading>
-          <Button
-            as={NextLink}
-            href="/news"
-            size="sm"
-            variant="ghost"
-            rightIcon={<Icon as={FaArrowRight} />}
-            _hover={{ color: "brand.400" }}
+    <Box bg={colors.darkBg} color={textColor} minH="100vh">
+      {/* Hero Slider - Adjusted for better mobile view */}
+      <Box position="relative" height={{ base: "40vh", sm: "50vh", md: "60vh" }} overflow="hidden">
+        {slides.map((slide, index) => (
+          <MotionBox
+            key={index}
+            position="absolute"
+            top="0"
+            left="0"
+            width="100%"
+            height="100%"
+            initial={{ opacity: 0 }}
+            animate={{
+              opacity: activeSlide === index ? 1 : 0,
+              zIndex: activeSlide === index ? 1 : 0
+            }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            bgImage={`linear-gradient(to bottom, rgba(10,13,11,0.5), rgba(26,44,31,0.85)), url('${slide.imageUrl}')`}
+            bgSize="cover"
+            bgPosition="center"
           >
-            View All
-          </Button>
-        </Flex>
-
-        {isLoading ? (
-          <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }} gap={6}>
-            {[1, 2, 3, 4].map((item) => (
-              <Box key={item} borderRadius="lg" overflow="hidden" bg="dark.800" height="100%">
-                <Skeleton height="180px" />
-                <Box p={4}>
-                  <SkeletonText mt={2} noOfLines={1} spacing="4" />
-                  <SkeletonText mt={4} noOfLines={3} spacing="4" />
-                  <Skeleton height="20px" mt={4} width="100px" />
-                </Box>
-              </Box>
-            ))}
-          </Grid>
-        ) : error ? (
-          <Box textAlign="center" p={8} bg="dark.800" borderRadius="lg">
-            <Text color="red.400">{error}</Text>
-            <Button mt={4} colorScheme="green" size="sm" onClick={() => window.location.reload()}>
-              Retry
-            </Button>
-          </Box>
-        ) : (
-          <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }} gap={6}>
-            {news.map((item) => (
-              <GridItem key={item._id}>
-                <Link as={NextLink} href={`/news/${item._id}`} _hover={{ textDecoration: "none" }}>
-                  <MotionBox
-                    whileHover={{ y: -5 }}
-                    transition={{ duration: 0.2 }}
-                    borderRadius="lg"
-                    overflow="hidden"
-                    bg="dark.800"
-                    borderWidth="1px"
-                    borderColor="dark.700"
-                    height="100%"
-                    _hover={{ boxShadow: "0 0 15px rgba(47, 158, 47, 0.3)" }}
-                  >
-                    <Box position="relative" height="180px">
-                      <Image
-                        src={item.imageUrl || "/api/placeholder/400/320"}
-                        alt={item.title}
-                        objectFit="cover"
-                        width="100%"
-                        height="100%"
-                        fallback={<Skeleton height="180px" />}
-                      />
-                      <Badge
-                        position="absolute"
-                        top="10px"
-                        right="10px"
-                        colorScheme="green"
-                        borderRadius="md"
-                      >
-                        {item.category || "News"}
-                      </Badge>
-                    </Box>
-                    <Box p={4}>
-                      <Heading as="h3" size="md" mb={2} noOfLines={2}>
-                        {item.title}
-                      </Heading>
-                      <Text color="gray.400" fontSize="sm" noOfLines={2} mb={3}>
-                        {item.body}
-                      </Text>
-                      <Flex align="center" color="gray.500" fontSize="xs">
-                        <Icon as={FaClock} mr={1} />
-                        <Text>{formatDate(item.createdAt || item.publishedAt)}</Text>
-                      </Flex>
-                    </Box>
-                  </MotionBox>
-                </Link>
-              </GridItem>
-            ))}
-          </Grid>
-        )}
-      </Container>
-
-      {/* Sections Grid */}
-      <Container maxW="container.xl">
-        <Heading mb={8} size="lg" color="white">
-          Discover Our Collections
-        </Heading>
-        <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} spacing={6}>
-          {sections.map((section) => (
-            <MotionBox key={section.name} whileHover={{ y: -5 }} transition={{ duration: 0.2 }}>
-              <Link as={NextLink} href={`/${section.name}`} _hover={{ textDecoration: "none" }}>
-                <Box
-                  p={6}
-                  borderRadius="lg"
-                  bg="dark.800"
-                  borderWidth="1px"
-                  borderColor="dark.700"
-                  height="100%"
-                  _hover={{ boxShadow: "0 0 15px rgba(47, 158, 47, 0.3)" }}
-                  transition="all 0.3s ease"
+            <Container maxW="container.xl" height="100%" px={{ base: 4, md: 6 }}>
+              <Flex
+                height="100%"
+                direction="column"
+                justify="center"
+                maxW={{ base: "100%", md: "60%" }}
+                color={textColor}
+              >
+                <MotionBox
+                  initial={{ y: 30, opacity: 0 }}
+                  animate={{
+                    y: activeSlide === index ? 0 : 30,
+                    opacity: activeSlide === index ? 1 : 0
+                  }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
                 >
-                  <Flex direction="column" align="center" textAlign="center">
-                    <Icon as={section.icon} fontSize="3xl" color="brand.500" mb={4} />
-                    <Heading size="md" textTransform="capitalize" mb={3}>
-                      {section.name}
-                    </Heading>
-                    <Text color="gray.400" fontSize="sm">
-                      {section.description}
-                    </Text>
-                  </Flex>
-                </Box>
-              </Link>
+                  <Heading
+                    size={{ base: "xl", md: "2xl" }}
+                    mb={4}
+                    color={colors.gold}
+                    fontWeight="bold"
+                    textShadow="0 2px 4px rgba(0,0,0,0.5)"
+                  >
+                    {slide.title}
+                  </Heading>
+                </MotionBox>
+
+                <MotionBox
+                  initial={{ y: 30, opacity: 0 }}
+                  animate={{
+                    y: activeSlide === index ? 0 : 30,
+                    opacity: activeSlide === index ? 1 : 0
+                  }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                >
+                  <Text
+                    fontSize={{ base: "md", md: "xl" }}
+                    mb={6}
+                    textShadow="0 1px 3px rgba(0,0,0,0.7)"
+                  >
+                    {slide.description}
+                  </Text>
+                </MotionBox>
+
+                <MotionBox
+                  initial={{ y: 30, opacity: 0 }}
+                  animate={{
+                    y: activeSlide === index ? 0 : 30,
+                    opacity: activeSlide === index ? 1 : 0
+                  }}
+                  transition={{ duration: 0.5, delay: 0.6 }}
+                >
+                  <Button
+                    as={NextLink}
+                    href={slide.buttonLink}
+                    bg={colors.midGreen}
+                    color={colors.brightGold}
+                    _hover={{ bg: colors.lightGreen, color: colors.textLight }}
+                    size={{ base: "md", md: "lg" }}
+                    rightIcon={<Icon as={FaArrowRight} />}
+                    fontWeight="medium"
+                    borderWidth="1px"
+                    borderColor={colors.gold}
+                    boxShadow="0 4px 8px rgba(0,0,0,0.3)"
+                  >
+                    {slide.buttonText}
+                  </Button>
+                </MotionBox>
+              </Flex>
+            </Container>
+          </MotionBox>
+        ))}
+
+        {/* Dots navigation */}
+        <HStack
+          position="absolute"
+          bottom={{ base: 3, md: 6 }}
+          left="50%"
+          transform="translateX(-50%)"
+          spacing={3}
+          zIndex={2}
+        >
+          {slides.map((_, index) => (
+            <Box
+              key={index}
+              w={{ base: "8px", md: "12px" }}
+              h={{ base: "8px", md: "12px" }}
+              borderRadius="full"
+              bg={activeSlide === index ? colors.brightGold : "whiteAlpha.700"}
+              cursor="pointer"
+              onClick={() => setActiveSlide(index)}
+              transition="all 0.2s"
+              _hover={{ transform: "scale(1.2)" }}
+              borderWidth="1px"
+              borderColor={activeSlide === index ? colors.brightGold : "transparent"}
+            />
+          ))}
+        </HStack>
+      </Box>
+
+      <Container maxW="container.xl" py={{ base: 10, md: 16 }} px={{ base: 4, md: 6 }}>
+        {/* Resources Section */}
+        <MotionBox
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+          transition={{ duration: 0.5 }}
+          textAlign="center"
+          mb={{ base: 10, md: 16 }}
+        >
+          <Heading as="h2" mb={4} color={colors.gold} size={{ base: "xl", md: "2xl" }}>
+            Our Digital Resources
+          </Heading>
+          <Text fontSize={{ base: "md", md: "lg" }} maxW="800px" mx="auto" color={colors.textLight}>
+            Explore our comprehensive collection of digital resources to enhance your learning experience
+          </Text>
+        </MotionBox>
+
+        <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} spacing={{ base: 5, md: 8 }} mb={{ base: 12, md: 20 }}>
+          {resourceItems.map((resource, index) => (
+            <MotionBox
+              key={resource.title}
+              as={NextLink}
+              href={resource.link}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeInUp}
+              transition={{ duration: 0.4, delay: index * 0.1, }}
+              p={{ base: 5, md: 6 }}
+              borderWidth="1px"
+              borderRadius="xl"
+              borderColor={colors.midGreen}
+              bg={colors.darkBgAlt}
+              boxShadow="lg"
+              _hover={{
+                transform: "translateY(-5px)",
+                boxShadow: "xl",
+                borderColor: resource.color,
+                bg: colors.darkGreen
+              }}
+              transitionProperty="all 0.3s ease"
+              textAlign="center"
+            >
+              <Icon as={resource.icon} boxSize={{ base: 10, md: 14 }} color={resource.color} mb={5} />
+              <Heading size="md" mb={3} color={colors.gold}>
+                {resource.title}
+              </Heading>
+              <Text mb={4} color={colors.textLight} fontSize={{ base: "sm", md: "md" }}>
+                Access our {resource.title.toLowerCase()} collection
+              </Text>
+              <Badge
+                px={4}
+                py={1}
+                borderRadius="full"
+                fontSize="sm"
+                bg={colors.darkGreen}
+                color={resource.color}
+                borderWidth="1px"
+                borderColor={resource.color}
+              >
+                {resource.count} Items
+              </Badge>
             </MotionBox>
           ))}
         </SimpleGrid>
+
+        {/* Latest News */}
+        <Box mb={{ base: 12, md: 20 }}>
+          <Flex justify="space-between" align="center" mb={{ base: 6, md: 8 }}>
+            <MotionBox
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeInUp}
+            >
+              <Heading size={{ base: "md", md: "lg" }} color={colors.gold}>Latest News</Heading>
+            </MotionBox>
+            <MotionBox
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <Button
+                as={NextLink}
+                href="/news"
+                variant="outline"
+                rightIcon={<FaArrowRight />}
+                borderColor={colors.gold}
+                color={colors.gold}
+                _hover={{ bg: colors.darkGreen, borderColor: colors.brightGold, color: colors.brightGold }}
+                size={{ base: "sm", md: "md" }}
+              >
+                View All
+              </Button>
+            </MotionBox>
+          </Flex>
+
+          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 5, md: 8 }}>
+            {news.length > 0 ? (
+              news.map((item, index) => (
+                <MotionBox
+                  key={item._id}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: "-50px" }}
+                  variants={fadeInUp}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  borderWidth="1px"
+                  borderRadius="lg"
+                  overflow="hidden"
+                  bg={colors.darkBgAlt}
+                  borderColor={colors.midGreen}
+                  boxShadow="md"
+                  _hover={{
+                    transform: "translateY(-5px)",
+                    boxShadow: "lg",
+                    borderColor: colors.gold
+                  }}
+                  transitionProperty="all 0.3s ease"
+                >
+                  {item.imageUrl && (
+                    <Box position="relative" height={{ base: "160px", md: "200px" }}>
+                      <Image
+                        src={item.imageUrl}
+                        alt={item.title}
+                        height="100%"
+                        width="100%"
+                        objectFit="cover"
+                        fallback={
+                          <Flex
+                            height="100%"
+                            bg={colors.darkGreen}
+                            justify="center"
+                            align="center"
+                          >
+                            <Icon as={FaNewspaper} boxSize={12} color={colors.mutedGold} />
+                          </Flex>
+                        }
+                      />
+                      <Box
+                        position="absolute"
+                        top="0"
+                        left="0"
+                        width="100%"
+                        height="100%"
+                        bgGradient={`linear(to-t, ${colors.darkBg}CC, transparent)`}
+                      />
+                    </Box>
+                  )}
+                  <Box p={{ base: 4, md: 5 }}>
+                    <Heading size="md" mb={2} noOfLines={2} color={colors.gold}>
+                      {item.title}
+                    </Heading>
+                    <HStack fontSize="sm" color={colors.mutedGold} mb={3}>
+                      <Icon as={FaCalendarAlt} />
+                      <Text>{new Date(item.createdAt).toLocaleDateString()}</Text>
+                    </HStack>
+                    <Text noOfLines={2} mb={4} color={colors.textLight} fontSize={{ base: "sm", md: "md" }}>
+                      {item.body}
+                    </Text>
+                    <Button
+                      as={NextLink}
+                      href={`/news/${item._id}`}
+                      size="sm"
+                      color={colors.brightGold}
+                      variant="link"
+                      rightIcon={<FaArrowRight />}
+                      _hover={{ color: colors.textLight }}
+                    >
+                      Read More
+                    </Button>
+                  </Box>
+                </MotionBox>
+              ))
+            ) : (
+              <MotionFlex
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeInUp}
+                gridColumn="1 / -1"
+                justify="center"
+                align="center"
+                p={10}
+                borderRadius="lg"
+                bg={colors.darkBgAlt}
+                borderColor={colors.midGreen}
+                borderWidth="1px"
+              >
+                <Text color={colors.textMuted}>No news articles available</Text>
+              </MotionFlex>
+            )}
+          </SimpleGrid>
+        </Box>
+
+        {/* Featured Books */}
+        <Box mb={{ base: 12, md: 20 }}>
+          <Flex justify="space-between" align="center" mb={{ base: 6, md: 8 }}>
+            <MotionBox
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeInUp}
+            >
+              <Heading size={{ base: "md", md: "lg" }} color={colors.gold}>Featured Books</Heading>
+            </MotionBox>
+            <MotionBox
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <Button
+                as={NextLink}
+                href="/books"
+                variant="outline"
+                rightIcon={<FaArrowRight />}
+                borderColor={colors.gold}
+                color={colors.gold}
+                _hover={{ bg: colors.darkGreen, borderColor: colors.brightGold, color: colors.brightGold }}
+                size={{ base: "sm", md: "md" }}
+              >
+                View All
+              </Button>
+            </MotionBox>
+          </Flex>
+
+          <SimpleGrid columns={{ base: 2, sm: 2, md: 4 }} spacing={{ base: 3, md: 6 }}>
+            {books.length > 0 ? (
+              books.map((book, index) => (
+                <MotionBox
+                  key={book._id}
+                  as={NextLink}
+                  href={`/books/${book._id}`}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: "-50px" }}
+                  variants={fadeInUp}
+                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                  borderWidth="1px"
+                  borderRadius="lg"
+                  overflow="hidden"
+                  bg={colors.darkBgAlt}
+                  borderColor={colors.midGreen}
+                  boxShadow="md"
+                  _hover={{
+                    transform: "translateY(-5px)",
+                    boxShadow: "lg",
+                    borderColor: colors.gold
+                  }}
+                  transitionProperty="all 0.3s ease"
+                >
+                  <Box height={{ base: "160px", sm: "180px", md: "220px" }} overflow="hidden">
+                    {book.coverUrl ? (
+                      <Image
+                        src={book.coverUrl}
+                        alt={book.title}
+                        width="100%"
+                        height="100%"
+                        objectFit="cover"
+                        transition="transform 0.5s"
+                        _groupHover={{ transform: "scale(1.05)" }}
+                      />
+                    ) : (
+                      <Flex
+                        height="100%"
+                        bg={colors.darkGreen}
+                        justify="center"
+                        align="center"
+                      >
+                        <Icon as={FaBook} boxSize={{ base: 8, md: 12 }} color={colors.brightGold} />
+                      </Flex>
+                    )}
+                  </Box>
+                  <Box p={{ base: 3, md: 4 }}>
+                    <Heading size="sm" mb={1} noOfLines={1} color={colors.gold}>
+                      {book.title}
+                    </Heading>
+                    <Text fontSize={{ base: "xs", md: "sm" }} color={colors.textMuted} noOfLines={1}>
+                      by {book.author}
+                    </Text>
+                  </Box>
+                </MotionBox>
+              ))
+            ) : (
+              <MotionFlex
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeInUp}
+                gridColumn="1 / -1"
+                justify="center"
+                align="center"
+                p={10}
+                borderRadius="lg"
+                bg={colors.darkBgAlt}
+                borderColor={colors.midGreen}
+                borderWidth="1px"
+              >
+                <Text color={colors.textMuted}>No books available</Text>
+              </MotionFlex>
+            )}
+          </SimpleGrid>
+        </Box>
+
+        {/* Featured Videos */}
+        <Box>
+          <Flex justify="space-between" align="center" mb={{ base: 6, md: 8 }}>
+            <MotionBox
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeInUp}
+            >
+              <Heading size={{ base: "md", md: "lg" }} color={colors.gold}>Latest Videos</Heading>
+            </MotionBox>
+            <MotionBox
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <Button
+                as={NextLink}
+                href="/videos"
+                variant="outline"
+                rightIcon={<FaArrowRight />}
+                borderColor={colors.gold}
+                color={colors.gold}
+                _hover={{ bg: colors.darkGreen, borderColor: colors.brightGold, color: colors.brightGold }}
+                size={{ base: "sm", md: "md" }}
+              >
+                View All
+              </Button>
+            </MotionBox>
+          </Flex>
+
+          <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={{ base: 5, md: 8 }}>
+            {videos.length > 0 ? (
+              videos.map((video, index) => (
+                <MotionBox
+                  key={video._id}
+                  as={NextLink}
+                  href={`/videos/${video._id}`}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: "-50px" }}
+                  variants={fadeInUp}
+                  transition={{ duration: 0.5, delay: index * 0.1, }}
+                  borderWidth="1px"
+                  borderRadius="lg"
+                  overflow="hidden"
+                  bg={colors.darkBgAlt}
+                  borderColor={colors.midGreen}
+                  boxShadow="md"
+                  _hover={{
+                    transform: "translateY(-5px)",
+                    boxShadow: "lg",
+                    borderColor: colors.gold
+                  }}
+                  transitionProperty="all 0.3s ease"
+                >
+                  <Box height={{ base: "180px", md: "200px" }} position="relative">
+                    {video.thumbnailUrl ? (
+                      <Image
+                        src={video.thumbnailUrl}
+                        alt={video.title}
+                        width="100%"
+                        height="100%"
+                        objectFit="cover"
+                        transition="transform 0.5s"
+                        _groupHover={{ transform: "scale(1.05)" }}
+                      />
+                    ) : (
+                      <Flex
+                        height="100%"
+                        bg={colors.darkGreen}
+                        justify="center"
+                        align="center"
+                      >
+                        <Icon as={FaVideo} boxSize={{ base: 8, md: 12 }} color={colors.lightGreen} />
+                      </Flex>
+                    )}
+                    <Flex
+                      position="absolute"
+                      top="0"
+                      left="0"
+                      right="0"
+                      bottom="0"
+                      bg="blackAlpha.600"
+                      justify="center"
+                      align="center"
+                      transition="background 0.3s"
+                      _hover={{ bg: "blackAlpha.400" }}
+                    >
+                      <Box
+                        p={{ base: 2, md: 3 }}
+                        borderRadius="full"
+                        bg={colors.darkBg}
+                        borderWidth="2px"
+                        borderColor={colors.gold}
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                        transition="transform 0.3s"
+                        _hover={{ transform: "scale(1.1)" }}
+                      >
+                        <Icon as={FaPlay} boxSize={{ base: 4, md: 5 }} color={colors.brightGold} />
+                      </Box>
+                    </Flex>
+                  </Box>
+                  <Box p={{ base: 3, md: 4 }}>
+                    <Heading size={{ base: "sm", md: "md" }} mb={2} noOfLines={1} color={colors.gold}>
+                      {video.title}
+                    </Heading>
+                    <Text noOfLines={2} color={colors.textLight} fontSize={{ base: "sm", md: "md" }}>
+                      {video.description}
+                    </Text>
+                  </Box>
+                </MotionBox>
+              ))
+            ) : (
+              <MotionFlex
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeInUp}
+                gridColumn="1 / -1"
+                justify="center"
+                align="center"
+                p={10}
+                borderRadius="lg"
+                bg={colors.darkBgAlt}
+                borderColor={colors.midGreen}
+                borderWidth="1px"
+              >
+                <Text color={colors.textMuted}>No videos available</Text>
+              </MotionFlex>
+            )}
+          </SimpleGrid>
+        </Box>
       </Container>
     </Box>
   );

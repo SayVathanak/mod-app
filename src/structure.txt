@@ -1,9 +1,25 @@
 Folder PATH listing
-Volume serial number is D2A3-B43A
+Volume serial number is 908B-33F9
 C:.
-|   folder_structure.txt
+|   structure.txt
 |   
 +---components
+|   |   AdminDashboard.tsx
+|   |   
+|   +---books
+|   |       BookCard.tsx
+|   |       
+|   +---layout
+|   |       Footer.tsx
+|   |       Header.tsx
+|   |       MainLayout.tsx
+|   |       
+|   +---shared
+|   |       KhmerTitle.tsx
+|   |       
+|   \---ui
+|           Card.tsx
+|           
 +---context
 |       AuthContext.tsx
 |       
@@ -52,9 +68,12 @@ C:.
 |   |           index.ts
 |   |           
 |   +---auth
-|   |       login.tsx
-|   |       register.tsx
-|   |       
+|   |   +---login
+|   |   |       [[...index]].tsx
+|   |   |       
+|   |   \---register
+|   |           [[...index]].tsx
+|   |           
 |   +---books
 |   |       index.tsx
 |   |       
@@ -72,9 +91,9 @@ C:.
 |       globals.css
 |       
 +---theme
+|       colors.ts
 |       index.ts
 |       
-+---types
 \---utils
         mongodb.ts
         

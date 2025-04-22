@@ -8,8 +8,6 @@ import {
   VStack,
   Image,
   Text,
-  useColorModeValue,
-  SimpleGrid,
   Flex,
   Icon,
   Badge,
@@ -23,8 +21,10 @@ import {
   Stack,
   HStack,
   IconButton,
+  SimpleGrid,
 } from "@chakra-ui/react";
 import { FaBook, FaPlus, FaTrash, FaEdit, FaUpload } from "react-icons/fa";
+import AdminLayout from "@/components/AdminLayout";
 
 type Book = {
   _id?: string;
@@ -46,12 +46,19 @@ export default function AdminBooks() {
   const toast = useToast();
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  // Chakra UI color mode values
-  const bgColor = useColorModeValue("gray.50", "gray.900");
-  const cardBgColor = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
-  const accentColor = "green.600";
-  const secondaryColor = "green.400";
+  // Military-inspired color scheme
+  const COLORS = {
+    darkBg: "#0A0D0B",
+    darkLayerOne: "#121712",
+    darkLayerTwo: "#1A211C",
+    darkBorder: "#2A332C",
+    goldAccent: "#BFA46F",
+    goldAccentHover: "#D4B86A",
+    greenAccent: "#2C3B2D",
+    greenAccentHover: "#3A4C3B",
+    textPrimary: "#E5E5E0",
+    textSecondary: "#A0A29E",
+  };
 
   const fetchBooks = async () => {
     try {
@@ -117,10 +124,10 @@ export default function AdminBooks() {
       const response = await fetch(endpoint, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          title, 
-          author, 
-          description, 
+        body: JSON.stringify({
+          title,
+          author,
+          description,
           coverUrl: coverUrl || (editingId ? books.find(b => b._id === editingId)?.coverUrl : undefined),
           pdfUrl: pdfUrl || (editingId ? books.find(b => b._id === editingId)?.pdfUrl : undefined)
         }),
@@ -168,23 +175,23 @@ export default function AdminBooks() {
 
   const handleDelete = async (id: string | undefined) => {
     if (!id) return;
-    
+
     if (!window.confirm("Are you sure you want to delete this book?")) return;
-    
+
     try {
       const res = await fetch(`/api/books/${id}`, {
         method: "DELETE",
       });
-      
+
       if (!res.ok) throw new Error("Failed to delete book");
-      
+
       toast({
         title: "Book deleted",
         status: "success",
         duration: 3000,
         isClosable: true,
       });
-      
+
       fetchBooks();
     } catch (error) {
       console.error("Error deleting book:", error);
@@ -202,221 +209,254 @@ export default function AdminBooks() {
   }, []);
 
   return (
-    <Box p={6} bg={bgColor} minH="100vh">
-      <Flex direction={{ base: "column", lg: "row" }} gap={8}>
-        {/* Form Section */}
-        <Box 
-          flex="1" 
-          p={6} 
-          bg={cardBgColor} 
-          borderRadius="lg" 
-          boxShadow="md" 
-          borderWidth="1px" 
-          borderColor={borderColor}
+    <AdminLayout>
+      <Box p={{ base: 0, md: 6 }}>
+        <Heading
+          color={COLORS.textPrimary}
+          size={{ base: "md", md: "lg" }}
+          mb={6}
         >
-          <Flex align="center" mb={6}>
-            <Icon as={FaBook} boxSize={6} color={accentColor} mr={3} />
-            <Heading size="lg">{editingId ? "Edit Book" : "Add New Book"}</Heading>
-          </Flex>
+          Book Management
+        </Heading>
 
-          <VStack spacing={5} align="stretch">
-            <FormControl isRequired>
-              <FormLabel>Book Title</FormLabel>
-              <Input
-                placeholder="Enter book title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                focusBorderColor={accentColor}
-              />
-            </FormControl>
-
-            <FormControl isRequired>
-              <FormLabel>Author</FormLabel>
-              <Input
-                placeholder="Enter author name"
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
-                focusBorderColor={accentColor}
-              />
-            </FormControl>
-
-            <FormControl isRequired>
-              <FormLabel>Description</FormLabel>
-              <Textarea
-                placeholder="Enter book description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                minH="150px"
-                focusBorderColor={accentColor}
-              />
-            </FormControl>
-
-            <FormControl>
-              <FormLabel>PDF File</FormLabel>
-              <Button
-                leftIcon={<FaUpload />}
-                variant="outline"
-                color={accentColor}
-                onClick={() => document.getElementById("pdf-upload")?.click()}
-                width="full"
-              >
-                {pdf ? pdf.name : "Select PDF File"}
-              </Button>
-              <Input
-                id="pdf-upload"
-                type="file"
-                accept="application/pdf"
-                onChange={(e) => setPdf(e.target.files?.[0] || null)}
-                display="none"
-              />
-            </FormControl>
-
-            <FormControl>
-              <FormLabel>Cover Image</FormLabel>
-              <Button
-                leftIcon={<FaUpload />}
-                variant="outline"
-                color={accentColor}
-                onClick={() => document.getElementById("cover-upload")?.click()}
-                width="full"
-              >
-                {cover ? cover.name : "Select Cover Image"}
-              </Button>
-              <Input
-                id="cover-upload"
-                type="file"
-                accept="image/*"
-                onChange={(e) => setCover(e.target.files?.[0] || null)}
-                display="none"
-              />
-            </FormControl>
-
-            <HStack spacing={4} pt={4}>
-              <Button
-                onClick={createBook}
-                isLoading={uploading}
-                loadingText={editingId ? "Updating..." : "Publishing..."}
-                colorScheme="green"
-                leftIcon={editingId ? <FaEdit /> : <FaPlus />}
-                flex="1"
-              >
-                {editingId ? "Update Book" : "Publish Book"}
-              </Button>
-              
-              {editingId && (
-                <Button
-                  onClick={resetForm}
-                  variant="outline"
-                >
-                  Cancel
-                </Button>
-              )}
-            </HStack>
-          </VStack>
-        </Box>
-
-        {/* Book List Section */}
-        <Box 
-          flex="1.5" 
-          p={6} 
-          bg={cardBgColor} 
-          borderRadius="lg" 
-          boxShadow="md" 
-          borderWidth="1px" 
-          borderColor={borderColor}
-          maxH="85vh"
-          overflowY="auto"
-        >
-          <Flex justify="space-between" align="center" mb={6}>
-            <Heading size="lg">Book Library</Heading>
-            <Badge colorScheme="green" fontSize="md" px={3} py={1} borderRadius="full">
-              {books.length} Books
-            </Badge>
-          </Flex>
-
-          {books.length === 0 ? (
-            <Flex 
-              direction="column" 
-              align="center" 
-              justify="center" 
-              py={10}
-              opacity={0.7}
-            >
-              <Icon as={FaBook} boxSize={12} mb={4} color={secondaryColor} />
-              <Text fontSize="lg">No books have been added yet</Text>
-              <Text>Books you publish will appear here</Text>
+        <Flex direction={{ base: "column", lg: "row" }} gap={8}>
+          {/* Form Section */}
+          <Box
+            flex="1"
+            p={{ base: 4, md: 6 }}
+            bg={COLORS.darkLayerOne}
+            borderRadius="lg"
+            boxShadow="dark-lg"
+            borderWidth="1px"
+            borderColor={COLORS.darkBorder}
+          >
+            <Flex align="center" mb={6}>
+              <Icon as={FaBook} boxSize={6} color={COLORS.goldAccent} mr={3} />
+              <Heading size="sm" color={COLORS.textPrimary}>{editingId ? "Edit Book" : "Add New Book"}</Heading>
             </Flex>
-          ) : (
-            <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={6}>
-              {books.map((book) => (
-                <Card 
-                  key={book._id} 
-                  borderRadius="lg" 
-                  overflow="hidden" 
-                  borderWidth="1px" 
-                  borderColor={borderColor}
-                  bgColor={cardBgColor}
-                  transition="all 0.3s"
-                  _hover={{ transform: "translateY(-4px)", boxShadow: "xl" }}
+
+            <VStack spacing={5} align="stretch">
+              <FormControl isRequired>
+                <FormLabel color={COLORS.textPrimary}>Book Title</FormLabel>
+                <Input
+                  placeholder="Enter book title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  focusBorderColor={COLORS.goldAccent}
+                  bg={COLORS.darkLayerTwo}
+                  borderColor={COLORS.darkBorder}
+                  _hover={{ borderColor: COLORS.goldAccent }}
+                  color={COLORS.textPrimary}
+                />
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel color={COLORS.textPrimary}>Author</FormLabel>
+                <Input
+                  placeholder="Enter author name"
+                  value={author}
+                  onChange={(e) => setAuthor(e.target.value)}
+                  focusBorderColor={COLORS.goldAccent}
+                  bg={COLORS.darkLayerTwo}
+                  borderColor={COLORS.darkBorder}
+                  _hover={{ borderColor: COLORS.goldAccent }}
+                  color={COLORS.textPrimary}
+                />
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel color={COLORS.textPrimary}>Description</FormLabel>
+                <Textarea
+                  placeholder="Enter book description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  minH="150px"
+                  focusBorderColor={COLORS.goldAccent}
+                  bg={COLORS.darkLayerTwo}
+                  borderColor={COLORS.darkBorder}
+                  _hover={{ borderColor: COLORS.goldAccent }}
+                  color={COLORS.textPrimary}
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel color={COLORS.textPrimary}>PDF File</FormLabel>
+                <Button
+                  leftIcon={<FaUpload />}
+                  variant="outline"
+                  borderColor={COLORS.goldAccent}
+                  color={COLORS.goldAccent}
+                  _hover={{ bg: COLORS.darkLayerTwo }}
+                  onClick={() => document.getElementById("pdf-upload")?.click()}
+                  width="full"
                 >
-                  <Box position="relative" height="180px" overflow="hidden">
-                    {book.coverUrl ? (
-                      <Image 
-                        src={book.coverUrl} 
-                        alt={book.title} 
-                        width="100%" 
-                        height="100%" 
-                        objectFit="cover" 
-                      />
-                    ) : (
-                      <Flex 
-                        height="100%" 
-                        bgGradient={`linear(to-r, ${accentColor}, ${secondaryColor})`}
-                        color="white"
-                        justify="center"
-                        align="center"
-                      >
-                        <Icon as={FaBook} boxSize={12} />
-                      </Flex>
-                    )}
-                  </Box>
-                  
-                  <CardBody>
-                    <Stack spacing={3}>
-                      <Heading size="md" noOfLines={1}>{book.title}</Heading>
-                      <Text fontSize="sm" color="gray.500">by {book.author}</Text>
-                      <Text noOfLines={3} fontSize="sm">{book.description}</Text>
-                    </Stack>
-                  </CardBody>
-                  
-                  <Divider />
-                  
-                  <CardFooter pt={2}>
-                    <HStack spacing={3} width="100%">
-                      <IconButton
-                        aria-label="Edit book"
-                        icon={<FaEdit />}
-                        colorScheme="green"
-                        variant="ghost"
-                        flex="1"
-                        onClick={() => handleEdit(book)}
-                      />
-                      <IconButton
-                        aria-label="Delete book"
-                        icon={<FaTrash />}
-                        colorScheme="red"
-                        variant="ghost"
-                        flex="1"
-                        onClick={() => handleDelete(book._id)}
-                      />
-                    </HStack>
-                  </CardFooter>
-                </Card>
-              ))}
-            </SimpleGrid>
-          )}
-        </Box>
-      </Flex>
-    </Box>
+                  {pdf ? pdf.name : "Select PDF File"}
+                </Button>
+                <Input
+                  id="pdf-upload"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={(e) => setPdf(e.target.files?.[0] || null)}
+                  display="none"
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel color={COLORS.textPrimary}>Cover Image</FormLabel>
+                <Button
+                  leftIcon={<FaUpload />}
+                  variant="outline"
+                  borderColor={COLORS.goldAccent}
+                  color={COLORS.goldAccent}
+                  _hover={{ bg: COLORS.darkLayerTwo }}
+                  onClick={() => document.getElementById("cover-upload")?.click()}
+                  width="full"
+                >
+                  {cover ? cover.name : "Select Cover Image"}
+                </Button>
+                <Input
+                  id="cover-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setCover(e.target.files?.[0] || null)}
+                  display="none"
+                />
+              </FormControl>
+
+              <HStack spacing={4} pt={4}>
+                <Button
+                  onClick={createBook}
+                  isLoading={uploading}
+                  loadingText={editingId ? "Updating..." : "Publishing..."}
+                  bg={COLORS.greenAccent}
+                  color={COLORS.textPrimary}
+                  _hover={{ bg: COLORS.greenAccentHover }}
+                  leftIcon={editingId ? <FaEdit /> : <FaPlus />}
+                  flex="1"
+                >
+                  {editingId ? "Update Book" : "Publish Book"}
+                </Button>
+
+                {editingId && (
+                  <Button
+                    onClick={resetForm}
+                    variant="outline"
+                    borderColor={COLORS.darkBorder}
+                    color={COLORS.textPrimary}
+                    _hover={{ bg: COLORS.darkLayerTwo }}
+                  >
+                    Cancel
+                  </Button>
+                )}
+              </HStack>
+            </VStack>
+          </Box>
+
+          {/* Book List Section */}
+          <Box
+            flex="1.5"
+            p={{ base: 4, md: 6 }}
+            bg={COLORS.darkLayerOne}
+            borderRadius="lg"
+            boxShadow="dark-lg"
+            borderWidth="1px"
+            borderColor={COLORS.darkBorder}
+            maxH={{ base: "auto", lg: "80vh" }}
+            overflowY="auto"
+          >
+            <Flex justify="space-between" align="center" mb={6}>
+              <Heading size="lg" color={COLORS.textPrimary}>Book Library</Heading>
+              <Badge bg={COLORS.greenAccent} color={COLORS.textPrimary} fontSize="md" px={3} py={1} borderRadius="full">
+                {books.length} Books
+              </Badge>
+            </Flex>
+
+            {books.length === 0 ? (
+              <Flex
+                direction="column"
+                align="center"
+                justify="center"
+                py={10}
+                opacity={0.7}
+              >
+                <Icon as={FaBook} boxSize={12} mb={4} color={COLORS.goldAccent} />
+                <Text fontSize="lg" color={COLORS.textPrimary}>No books have been added yet</Text>
+                <Text color={COLORS.textSecondary}>Books you publish will appear here</Text>
+              </Flex>
+            ) : (
+              <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={6}>
+                {books.map((book) => (
+                  <Card
+                    key={book._id}
+                    borderRadius="lg"
+                    overflow="hidden"
+                    borderWidth="1px"
+                    borderColor={COLORS.darkBorder}
+                    bgColor={COLORS.darkLayerTwo}
+                    transition="all 0.3s"
+                    _hover={{ transform: "translateY(-4px)", boxShadow: "dark-lg", borderColor: COLORS.goldAccent }}
+                  >
+                    <Box position="relative" height="180px" overflow="hidden">
+                      {book.coverUrl ? (
+                        <Image
+                          src={book.coverUrl}
+                          alt={book.title}
+                          width="100%"
+                          height="100%"
+                          objectFit="cover"
+                        />
+                      ) : (
+                        <Flex
+                          height="100%"
+                          bgGradient={`linear(to-r, ${COLORS.greenAccent}, ${COLORS.darkLayerOne})`}
+                          color="white"
+                          justify="center"
+                          align="center"
+                        >
+                          <Icon as={FaBook} boxSize={12} />
+                        </Flex>
+                      )}
+                    </Box>
+
+                    <CardBody>
+                      <Stack spacing={3}>
+                        <Heading size="md" noOfLines={1} color={COLORS.textPrimary}>{book.title}</Heading>
+                        <Text fontSize="sm" color={COLORS.textSecondary}>by {book.author}</Text>
+                        <Text noOfLines={3} fontSize="sm" color={COLORS.textPrimary}>{book.description}</Text>
+                      </Stack>
+                    </CardBody>
+
+                    <Divider borderColor={COLORS.darkBorder} />
+
+                    <CardFooter pt={2}>
+                      <HStack spacing={3} width="100%">
+                        <IconButton
+                          aria-label="Edit book"
+                          icon={<FaEdit />}
+                          variant="ghost"
+                          color={COLORS.goldAccent}
+                          _hover={{ bg: COLORS.darkLayerOne }}
+                          flex="1"
+                          onClick={() => handleEdit(book)}
+                        />
+                        <IconButton
+                          aria-label="Delete book"
+                          icon={<FaTrash />}
+                          variant="ghost"
+                          color="red.400"
+                          _hover={{ bg: COLORS.darkLayerOne }}
+                          flex="1"
+                          onClick={() => handleDelete(book._id)}
+                        />
+                      </HStack>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </SimpleGrid>
+            )}
+          </Box>
+        </Flex>
+      </Box>
+    </AdminLayout>
   );
 }

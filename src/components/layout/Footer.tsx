@@ -10,12 +10,10 @@ import {
   Divider,
   SimpleGrid,
   useBreakpointValue,
-  useColorModeValue
 } from '@chakra-ui/react'
 import {
-  FaGithub,
-  FaTwitter,
   FaFacebook,
+  FaTwitter,
   FaInstagram,
   FaLinkedin,
   FaMapMarkerAlt,
@@ -23,6 +21,8 @@ import {
   FaEnvelope
 } from 'react-icons/fa'
 import NextLink from 'next/link'
+import { KhmerTitle, COLORS } from '../shared/KhmerTitle';
+// import router from 'next/router';
 
 // Footer navigation items
 const footerNavItems = [
@@ -71,11 +71,16 @@ const contactInfo = [
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const footerBg = useColorModeValue("gray.50", "dark.800");
-  const borderColor = useColorModeValue("gray.200", "dark.700");
-  const textColor = useColorModeValue("gray.600", "gray.400");
-  const headingColor = useColorModeValue("gray.700", "gray.300");
-  const logoTextColor = useColorModeValue("gray.800", "white");
+
+  // if (router.pathname.startsWith('/admin')) {
+  //   return null;
+  // }
+
+  // Apply our new color scheme
+  const footerBg = COLORS.black[900];
+  const borderColor = COLORS.black[700];
+  const textColor = "gray.400";
+  const headingColor = COLORS.accent.gold;
 
   // Responsive column count
   const columnCount = useBreakpointValue({ base: 1, sm: 2, md: 3, lg: 4 }) || 1;
@@ -90,6 +95,7 @@ const Footer = () => {
       py={{ base: 8, md: 12 }}
       borderTop="1px solid"
       borderTopColor={borderColor}
+      color="white"
     >
       <Container maxW="container.xl">
         {/* Full footer for larger screens */}
@@ -103,31 +109,8 @@ const Footer = () => {
               {/* Logo and info */}
               <Box>
                 <Flex align="center" mb={4}>
-                  <Box
-                    bg="brand.500"
-                    w="40px"
-                    h="40px"
-                    borderRadius="md"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    color="white"
-                    fontWeight="bold"
-                    boxShadow="sm"
-                  >
-                    Logo
-                  </Box>
-                  <Text
-                    ml={3}
-                    fontSize="lg"
-                    fontWeight="medium"
-                    color={logoTextColor}
-                    sx={{
-                      fontFamily: "'Moul', 'Dangrek', 'Battambang', sans-serif",
-                    }}
-                  >
-                    ក្រសួងការពារជាតិ
-                  </Text>
+                  <img src="/images/logo.svg" alt="ក្រសួងការពារជាតិ Logo" width="40" height="40" />
+                  <KhmerTitle ml={3} size="sm">ក្រសួងការពារជាតិ</KhmerTitle>
                 </Flex>
                 <Text fontSize="sm" color={textColor} mb={4}>
                   The official digital media platform of the Ministry of National Defense of Cambodia.
@@ -137,7 +120,7 @@ const Footer = () => {
                 <VStack align="flex-start" spacing={2}>
                   {contactInfo.map((item, index) => (
                     <Flex key={index} align="center">
-                      <Box as={item.icon} mr={2} color="brand.500" />
+                      <Box as={item.icon} mr={2} color={COLORS.accent.gold} />
                       <Text fontSize="sm" color={textColor}>
                         {item.info}
                       </Text>
@@ -167,7 +150,8 @@ const Footer = () => {
                         href={link.href}
                         color={textColor}
                         fontSize="sm"
-                        _hover={{ color: "brand.500", textDecoration: "none" }}
+                        _hover={{ color: COLORS.darkGreen[500], textDecoration: "none" }}
+                        transition="color 0.2s"
                       >
                         {link.name}
                       </Link>
@@ -199,7 +183,11 @@ const Footer = () => {
                       icon={<Box as={social.icon} />}
                       size="sm"
                       variant="ghost"
-                      colorScheme="brand"
+                      color="white"
+                      _hover={{
+                        bg: COLORS.black[800],
+                        color: COLORS.accent.gold
+                      }}
                       borderRadius="full"
                     />
                   </Link>
@@ -212,20 +200,10 @@ const Footer = () => {
           <VStack spacing={6}>
             <Flex direction="column" align="center">
               <Flex align="center" mb={3}>
-                  <Link as={NextLink} href="/" _hover={{ textDecoration: "none" }}>
-                    <img src="/images/logo.svg" alt="ក្រសួងការពារជាតិ Logo" width="40" height="40" />
-                  </Link>
-                <Text
-                  ml={2}
-                  fontSize="md"
-                  fontWeight="medium"
-                  color={logoTextColor}
-                  sx={{
-                    fontFamily: "'Moul', 'Dangrek', 'Battambang', sans-serif",
-                  }}
-                >
-                  ក្រសួងការពារជាតិ
-                </Text>
+                <Link as={NextLink} href="/" _hover={{ textDecoration: "none" }}>
+                  <img src="/images/logo.svg" alt="ក្រសួងការពារជាតិ Logo" width="40" height="40" />
+                </Link>
+                <KhmerTitle ml={3} size="sm">ក្រសួងការពារជាតិ</KhmerTitle>
               </Flex>
 
               <Text fontSize="xs" color={textColor} textAlign="center" mb={4}>
@@ -241,7 +219,11 @@ const Footer = () => {
                     icon={<Box as={social.icon} />}
                     size="sm"
                     variant="ghost"
-                    colorScheme="brand"
+                    color="white"
+                    _hover={{
+                      bg: COLORS.black[800],
+                      color: COLORS.accent.gold
+                    }}
                     borderRadius="full"
                   />
                 </Link>

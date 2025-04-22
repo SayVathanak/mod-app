@@ -11,7 +11,6 @@ import {
   Flex,
   Icon,
   Badge,
-  useColorModeValue,
   SimpleGrid,
   Card,
   CardBody,
@@ -25,16 +24,16 @@ import {
   useToast,
   Tag,
 } from "@chakra-ui/react";
-import { 
-  FaNewspaper, 
-  FaPlus, 
-  FaTrash, 
-  FaEdit, 
-  FaUpload, 
+import {
+  FaNewspaper,
+  FaPlus,
+  FaTrash,
+  FaEdit,
+  FaUpload,
   FaEye,
   FaCalendarAlt,
-  FaClock
 } from "react-icons/fa";
+import AdminLayout from "@/components/AdminLayout";
 
 type NewsItem = {
   _id?: string;
@@ -53,12 +52,19 @@ export default function AdminNews() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const toast = useToast();
 
-  // Chakra UI color mode values
-  const bgColor = useColorModeValue("gray.50", "gray.900");
-  const cardBgColor = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
-  const accentColor = "green.600";
-  const secondaryColor = "green.400";
+  // Military-inspired color scheme
+  const COLORS = {
+    darkBg: "#0A0D0B",
+    darkLayerOne: "#121712",
+    darkLayerTwo: "#1A211C",
+    darkBorder: "#2A332C",
+    goldAccent: "#BFA46F",
+    goldAccentHover: "#D4B86A",
+    greenAccent: "#2C3B2D",
+    greenAccentHover: "#3A4C3B",
+    textPrimary: "#E5E5E0",
+    textSecondary: "#A0A29E",
+  };
 
   const fetchNews = async () => {
     try {
@@ -125,9 +131,9 @@ export default function AdminNews() {
       const response = await fetch(endpoint, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          title, 
-          body, 
+        body: JSON.stringify({
+          title,
+          body,
           imageUrl: imageUrl || (editingId ? newsList.find(item => item._id === editingId)?.imageUrl : undefined),
         }),
       });
@@ -171,23 +177,23 @@ export default function AdminNews() {
 
   const handleDelete = async (id: string | undefined) => {
     if (!id) return;
-    
+
     if (!window.confirm("Are you sure you want to delete this news item?")) return;
-    
+
     try {
       const res = await fetch(`/api/news/${id}`, {
         method: "DELETE",
       });
-      
+
       if (!res.ok) throw new Error("Failed to delete news item");
-      
+
       toast({
         title: "News item deleted",
         status: "success",
         duration: 3000,
         isClosable: true,
       });
-      
+
       fetchNews();
     } catch (error) {
       console.error("Error deleting news:", error);
@@ -205,194 +211,222 @@ export default function AdminNews() {
   }, []);
 
   return (
-    <Box p={6} bg={bgColor} minH="100vh">
-      <Flex direction={{ base: "column", lg: "row" }} gap={8}>
-        {/* Form Section */}
-        <Box 
-          flex="1" 
-          p={6} 
-          bg={cardBgColor} 
-          borderRadius="lg" 
-          boxShadow="md" 
-          borderWidth="1px" 
-          borderColor={borderColor}
+    <AdminLayout>
+      <Box p={{ base: 0, md: 6 }}>
+        <Heading
+          color={COLORS.textPrimary}
+          size={{ base: "md", md: "lg" }}
+          mb={6}
         >
-          <Flex align="center" mb={6}>
-            <Icon as={FaNewspaper} boxSize={6} color={accentColor} mr={3} />
-            <Heading size="lg">{editingId ? "Edit News" : "Create News Article"}</Heading>
-          </Flex>
+          News Management
+        </Heading>
 
-          <VStack spacing={5} align="stretch">
-            <FormControl isRequired>
-              <FormLabel>News Title</FormLabel>
-              <Input
-                placeholder="Enter headline"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                focusBorderColor={accentColor}
-              />
-            </FormControl>
-
-            <FormControl isRequired>
-              <FormLabel>Content</FormLabel>
-              <Textarea
-                placeholder="Enter news content"
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-                minH="200px"
-                focusBorderColor={accentColor}
-              />
-            </FormControl>
-
-            <FormControl>
-              <FormLabel>Featured Image</FormLabel>
-              <Button
-                leftIcon={<FaUpload />}
-                variant="outline"
-                color={accentColor}
-                onClick={() => document.getElementById("image-upload")?.click()}
-                width="full"
-              >
-                {image ? image.name : "Select Image"}
-              </Button>
-              <Input
-                id="image-upload"
-                type="file"
-                accept="image/*"
-                onChange={(e) => setImage(e.target.files?.[0] || null)}
-                display="none"
-              />
-            </FormControl>
-
-            <HStack spacing={4} pt={4}>
-              <Button
-                onClick={createNews}
-                isLoading={uploading}
-                loadingText={editingId ? "Updating..." : "Publishing..."}
-                colorScheme="green"
-                leftIcon={editingId ? <FaEdit /> : <FaPlus />}
-                flex="1"
-              >
-                {editingId ? "Update Article" : "Publish Article"}
-              </Button>
-              
-              {editingId && (
-                <Button
-                  onClick={resetForm}
-                  variant="outline"
-                >
-                  Cancel
-                </Button>
-              )}
-            </HStack>
-          </VStack>
-        </Box>
-
-        {/* News List Section */}
-        <Box 
-          flex="1.5" 
-          p={6} 
-          bg={cardBgColor} 
-          borderRadius="lg" 
-          boxShadow="md" 
-          borderWidth="1px" 
-          borderColor={borderColor}
-          maxH="85vh"
-          overflowY="auto"
-        >
-          <Flex justify="space-between" align="center" mb={6}>
-            <Heading size="lg">News Articles</Heading>
-            <Badge colorScheme="green" fontSize="md" px={3} py={1} borderRadius="full">
-              {newsList.length} Articles
-            </Badge>
-          </Flex>
-
-          {newsList.length === 0 ? (
-            <Flex 
-              direction="column" 
-              align="center" 
-              justify="center" 
-              py={10}
-              opacity={0.7}
-            >
-              <Icon as={FaNewspaper} boxSize={12} mb={4} color={secondaryColor} />
-              <Text fontSize="lg">No news articles have been published yet</Text>
-              <Text>Articles you publish will appear here</Text>
+        <Flex direction={{ base: "column", lg: "row" }} gap={8}>
+          {/* Form Section */}
+          <Box
+            flex="1"
+            p={{ base: 4, md: 6 }}
+            bg={COLORS.darkLayerOne}
+            borderRadius="lg"
+            boxShadow="dark-lg"
+            borderWidth="1px"
+            borderColor={COLORS.darkBorder}
+          >
+            <Flex align="center" mb={6}>
+              <Icon as={FaNewspaper} boxSize={6} color={COLORS.goldAccent} mr={3} />
+              <Heading size="sm" color={COLORS.textPrimary}>{editingId ? "Edit News" : "Create News Article"}</Heading>
             </Flex>
-          ) : (
+
             <VStack spacing={5} align="stretch">
-              {newsList.map((item) => (
-                <Card 
-                  key={item._id} 
-                  direction={{ base: 'column', sm: 'row' }}
-                  overflow="hidden"
-                  borderRadius="lg" 
-                  borderWidth="1px" 
-                  borderColor={borderColor}
-                  bgColor={cardBgColor}
-                  transition="all 0.3s"
-                  _hover={{ boxShadow: "lg" }}
+              <FormControl isRequired>
+                <FormLabel color={COLORS.textPrimary}>News Title</FormLabel>
+                <Input
+                  placeholder="Enter headline"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  focusBorderColor={COLORS.goldAccent}
+                  bg={COLORS.darkLayerTwo}
+                  borderColor={COLORS.darkBorder}
+                  _hover={{ borderColor: COLORS.goldAccent }}
+                  color={COLORS.textPrimary}
+                />
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel color={COLORS.textPrimary}>Content</FormLabel>
+                <Textarea
+                  placeholder="Enter news content"
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  minH="200px"
+                  focusBorderColor={COLORS.goldAccent}
+                  bg={COLORS.darkLayerTwo}
+                  borderColor={COLORS.darkBorder}
+                  _hover={{ borderColor: COLORS.goldAccent }}
+                  color={COLORS.textPrimary}
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel color={COLORS.textPrimary}>Featured Image</FormLabel>
+                <Button
+                  leftIcon={<FaUpload />}
+                  variant="outline"
+                  borderColor={COLORS.goldAccent}
+                  color={COLORS.goldAccent}
+                  _hover={{ bg: COLORS.darkLayerTwo }}
+                  onClick={() => document.getElementById("image-upload")?.click()}
+                  width="full"
                 >
-                  {item.imageUrl && (
-                    <Box w={{ base: "100%", sm: "200px" }} h={{ base: "200px", sm: "auto" }}>
-                      <Image
-                        objectFit="cover"
-                        width="100%"
-                        height="100%"
-                        src={item.imageUrl}
-                        alt={item.title}
-                      />
-                    </Box>
-                  )}
+                  {image ? image.name : "Select Image"}
+                </Button>
+                <Input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setImage(e.target.files?.[0] || null)}
+                  display="none"
+                />
+              </FormControl>
 
-                  <Stack flex="1">
-                    <CardBody>
-                      <Heading size="md">{item.title}</Heading>
-                      
-                      <HStack spacing={2} mt={2} mb={3}>
-                        <Tag size="sm" colorScheme="green" variant="subtle">
-                          <Icon as={FaCalendarAlt} mr={1} />
-                          {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "No date"}
-                        </Tag>
-                      </HStack>
-                      
-                      <Text noOfLines={3}>{item.body}</Text>
-                    </CardBody>
+              <HStack spacing={4} pt={4}>
+                <Button
+                  onClick={createNews}
+                  isLoading={uploading}
+                  loadingText={editingId ? "Updating..." : "Publishing..."}
+                  bg={COLORS.greenAccent}
+                  color={COLORS.textPrimary}
+                  _hover={{ bg: COLORS.greenAccentHover }}
+                  leftIcon={editingId ? <FaEdit /> : <FaPlus />}
+                  flex="1"
+                >
+                  {editingId ? "Update Article" : "Publish Article"}
+                </Button>
 
-                    <CardFooter pt={0}>
-                      <HStack spacing={3}>
-                        <IconButton
-                          aria-label="View article"
-                          icon={<FaEye />}
-                          colorScheme="blue"
-                          variant="ghost"
-                          size="sm"
-                        />
-                        <IconButton
-                          aria-label="Edit article"
-                          icon={<FaEdit />}
-                          colorScheme="green"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(item)}
-                        />
-                        <IconButton
-                          aria-label="Delete article"
-                          icon={<FaTrash />}
-                          colorScheme="red"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(item._id)}
-                        />
-                      </HStack>
-                    </CardFooter>
-                  </Stack>
-                </Card>
-              ))}
+                {editingId && (
+                  <Button
+                    onClick={resetForm}
+                    variant="outline"
+                    borderColor={COLORS.darkBorder}
+                    color={COLORS.textPrimary}
+                    _hover={{ bg: COLORS.darkLayerTwo }}
+                  >
+                    Cancel
+                  </Button>
+                )}
+              </HStack>
             </VStack>
-          )}
-        </Box>
-      </Flex>
-    </Box>
+          </Box>
+
+          {/* News List Section */}
+          <Box
+            flex="1.5"
+            p={{ base: 4, md: 6 }}
+            bg={COLORS.darkLayerOne}
+            borderRadius="lg"
+            boxShadow="dark-lg"
+            borderWidth="1px"
+            borderColor={COLORS.darkBorder}
+            maxH={{ base: "auto", lg: "80vh" }}
+            overflowY="auto"
+          >
+            <Flex justify="space-between" align="center" mb={6}>
+              <Heading size="sm" color={COLORS.textPrimary}>News Articles</Heading>
+              <Badge bg={COLORS.greenAccent} color={COLORS.textPrimary} fontSize="md" px={3} py={1} borderRadius="full">
+                {newsList.length} Articles
+              </Badge>
+            </Flex>
+
+            {newsList.length === 0 ? (
+              <Flex
+                direction="column"
+                align="center"
+                justify="center"
+                py={10}
+                opacity={0.7}
+              >
+                <Icon as={FaNewspaper} boxSize={12} mb={4} color={COLORS.goldAccent} />
+                <Text fontSize="lg" color={COLORS.textPrimary}>No news articles have been published yet</Text>
+                <Text color={COLORS.textSecondary}>Articles you publish will appear here</Text>
+              </Flex>
+            ) : (
+              <VStack spacing={5} align="stretch">
+                {newsList.map((item) => (
+                  <Card
+                    key={item._id}
+                    direction={{ base: 'column', sm: 'row' }}
+                    overflow="hidden"
+                    borderRadius="lg"
+                    borderWidth="1px"
+                    borderColor={COLORS.darkBorder}
+                    bgColor={COLORS.darkLayerTwo}
+                    transition="all 0.3s"
+                    _hover={{ transform: "translateY(-2px)", boxShadow: "dark-lg", borderColor: COLORS.goldAccent }}
+                  >
+                    {item.imageUrl && (
+                      <Box w={{ base: "100%", sm: "200px" }} h={{ base: "200px", sm: "auto" }}>
+                        <Image
+                          objectFit="cover"
+                          width="100%"
+                          height="100%"
+                          src={item.imageUrl}
+                          alt={item.title}
+                        />
+                      </Box>
+                    )}
+
+                    <Stack flex="1">
+                      <CardBody>
+                        <Heading size="md" color={COLORS.textPrimary}>{item.title}</Heading>
+
+                        <HStack spacing={2} mt={2} mb={3}>
+                          <Tag size="sm" bg={COLORS.greenAccent} color={COLORS.textPrimary} variant="subtle">
+                            <Icon as={FaCalendarAlt} mr={1} />
+                            {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "No date"}
+                          </Tag>
+                        </HStack>
+
+                        <Text noOfLines={3} color={COLORS.textPrimary}>{item.body}</Text>
+                      </CardBody>
+
+                      <CardFooter pt={0}>
+                        <HStack spacing={3}>
+                          <IconButton
+                            aria-label="View article"
+                            icon={<FaEye />}
+                            color={COLORS.goldAccent}
+                            variant="ghost"
+                            size="sm"
+                            _hover={{ bg: COLORS.darkLayerOne }}
+                          />
+                          <IconButton
+                            aria-label="Edit article"
+                            icon={<FaEdit />}
+                            color={COLORS.goldAccent}
+                            variant="ghost"
+                            size="sm"
+                            _hover={{ bg: COLORS.darkLayerOne }}
+                            onClick={() => handleEdit(item)}
+                          />
+                          <IconButton
+                            aria-label="Delete article"
+                            icon={<FaTrash />}
+                            color="red.400"
+                            variant="ghost"
+                            size="sm"
+                            _hover={{ bg: COLORS.darkLayerOne }}
+                            onClick={() => handleDelete(item._id)}
+                          />
+                        </HStack>
+                      </CardFooter>
+                    </Stack>
+                  </Card>
+                ))}
+              </VStack>
+            )}
+          </Box>
+        </Flex>
+      </Box>
+    </AdminLayout>
   );
 }

@@ -1,4 +1,3 @@
-// Header.tsx
 import {
   Box,
   Flex,
@@ -21,24 +20,117 @@ import {
   MenuList,
   MenuItem,
   Portal,
-  Image,
   Tooltip,
+  Icon,
+  useBreakpointValue,
+  Skeleton
 } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
+import NextLink from 'next/link';
 import { useRef, useEffect, useState } from 'react';
 import { HamburgerIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import { useUser, useAuth, UserButton, SignInButton, SignUpButton } from '@clerk/nextjs';
+import {
+  FaNewspaper,
+  FaBook,
+  FaMap,
+  FaVideo,
+  FaCog,
+  FaUsers,
+  FaFileAlt
+} from "react-icons/fa";
 
+// Types for our data
+interface ContentItem {
+  id: string;
+  title: string;
+  slug: string;
+  publishedAt?: string;
+  author?: string;
+}
+
+// Define color constants for consistent theming
+const COLORS = {
+  darkBg: "#0A0D0B",
+  darkBgAlt: "#121A14",
+  darkGreen: {
+    500: "#1A2C1F",
+    600: "#264D33",
+    700: "#3E7E50",
+  },
+  black: {
+    900: "#0A0D0B",
+    800: "#121A14",
+    700: "#1A2C1F",
+  },
+  accent: {
+    gold: "#BFA46F",
+    brightGold: "#D4B86A",
+    mutedGold: "#8F7B4E",
+  },
+  text: {
+    light: "#E0E0E0",
+    muted: "#A0A0A0",
+  }
+};
+
+// Define navigation items with icons and dropdown flags
 const navItems = [
-  { label: 'Home', href: '/' },
-  { label: 'Books', href: '/books', hasDropdown: true },
-  { label: 'Maps', href: '/maps' },
-  { label: 'News', href: '/news', hasDropdown: true },
-  { label: 'Videos', href: '/videos' },
+  {
+    label: 'News',
+    href: '/news',
+    icon: FaNewspaper,
+    hasDropdown: true
+  },
+  {
+    label: 'Books',
+    href: '/books',
+    icon: FaBook,
+    hasDropdown: true
+  },
+  {
+    label: 'Maps',
+    href: '/maps',
+    icon: FaMap,
+    hasDropdown: false
+  },
+  {
+    label: 'Videos',
+    href: '/videos',
+    icon: FaVideo,
+    hasDropdown: false
+  },
 ];
 
-const Header = () => {
+// Admin navigation items
+const adminNavItems = [
+  {
+    label: 'Dashboard',
+    href: '/admin',
+    icon: FaCog,
+    hasDropdown: false
+  },
+  {
+    label: 'Content',
+    href: '/admin/content',
+    icon: FaFileAlt,
+    hasDropdown: false
+  },
+  {
+    label: 'Users',
+    href: '/admin/users',
+    icon: FaUsers,
+    hasDropdown: false
+  }
+];
+
+interface HeaderProps {
+  news?: ContentItem[];
+  books?: ContentItem[];
+  isLoading?: boolean;
+}
+
+const Header = ({ news = [], books = [], isLoading = false }: HeaderProps) => {
   const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -46,16 +138,20 @@ const Header = () => {
   const { isLoaded: isAuthLoaded } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   // Check if we're in admin area
   const isAdminPage = router.pathname.startsWith('/admin');
 
+  // Responsive variables
+  const isMobile = useBreakpointValue({ base: true, md: false });
+
   // Header colors based on scroll state
-  const bgColor = useColorModeValue(
-    scrolled ? 'white' : 'rgba(255, 255, 255, 0.95)',
-    scrolled ? 'dark.800' : 'rgba(26, 32, 44, 0.95)'
+  const headerBg = useColorModeValue(
+    scrolled ? COLORS.black[900] : 'rgba(10, 13, 11, 0.95)',
+    scrolled ? COLORS.black[900] : 'rgba(10, 13, 11, 0.95)'
   );
-  const borderColor = useColorModeValue('gray.200', 'dark.700');
+  const borderColor = COLORS.darkGreen[500];
 
   // Detect scroll for header styling
   useEffect(() => {
@@ -65,6 +161,11 @@ const Header = () => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Set mounted state to prevent hydration issues
+  useEffect(() => {
+    setMounted(true);
   }, []);
 
   // Determine if user is an admin based on Clerk role
@@ -79,32 +180,55 @@ const Header = () => {
     return null;
   }
 
-  type DropdownType = 'books' | 'news';
-
-  const recentContent: Record<DropdownType, { id: string; title: string; slug: string }[]> = {
-    books: [
-      { id: '1', title: 'Military Strategy', slug: 'military-strategy' },
-      { id: '2', title: 'Defense Policy', slug: 'defense-policy' },
-    ],
-    news: [
-      { id: '1', title: 'Recent Training Exercise', slug: 'training-exercise' },
-      { id: '2', title: 'Defense Cooperation', slug: 'defense-cooperation' },
-    ],
+  // Content mapping for dropdowns
+  const contentMap: Record<string, ContentItem[]> = {
+    '/news': news,
+    '/books': books
   };
 
-
-  // Get dropdown content based on item type
-  const getDropdownContent = (type: string) => {
-    if (type in recentContent) {
-      return recentContent[type as DropdownType];
-    }
-    return [];
+  // Get dropdown content based on path
+  const getDropdownContent = (path: string): ContentItem[] => {
+    return contentMap[path] || [];
   };
+
+  // Final navigation items
+  const finalNavItems = isAdmin ? [...navItems, ...adminNavItems] : navItems;
+
+  if (!mounted) {
+    return (
+      <Box
+        as="header"
+        bg={headerBg}
+        boxShadow={scrolled ? "md" : "none"}
+        position="sticky"
+        top={0}
+        zIndex={10}
+        transition="all 0.3s ease"
+        backdropFilter="blur(10px)"
+        borderBottom="1px solid"
+        borderBottomColor={borderColor}
+      >
+        <Container maxW="container.xl" px={{ base: 4, md: 6 }}>
+          <Flex
+            as="nav"
+            align="center"
+            justify="space-between"
+            wrap="wrap"
+            py={{ base: 3, md: 4 }}
+            gap={4}
+          >
+            <Skeleton height="40px" width="150px" />
+            <Skeleton height="40px" width="40px" />
+          </Flex>
+        </Container>
+      </Box>
+    );
+  }
 
   return (
     <Box
       as="header"
-      bg={bgColor}
+      bg={headerBg}
       boxShadow={scrolled ? "md" : "none"}
       position="sticky"
       top={0}
@@ -112,7 +236,7 @@ const Header = () => {
       transition="all 0.3s ease"
       backdropFilter="blur(10px)"
       borderBottom="1px solid"
-      borderBottomColor={scrolled ? borderColor : 'transparent'}
+      borderBottomColor={borderColor}
     >
       <Container maxW="container.xl" px={{ base: 4, md: 6 }}>
         <Flex
@@ -124,30 +248,23 @@ const Header = () => {
           gap={4}
         >
           {/* Logo and Site Title */}
-          <Flex align="center" mr={{ base: 0, md: 5 }} flex="0 0 auto">
-            <Link href="/" passHref>
+          {/* Logo - Left side */}
+          <Flex align="center" flex="0 0 auto" mr={{ base: 0, md: 5 }}>
+            <NextLink href="/" passHref>
               <Box display="flex" alignItems="center">
-                <Box
-                  bg="brand.500"
-                  w={{ base: "36px", md: "40px" }}
-                  h={{ base: "36px", md: "40px" }}
-                  borderRadius="md"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  color="white"
-                  fontWeight="bold"
-                  boxShadow="sm"
-                >
-                  Logo
-                </Box>
+                <img
+                  src="/images/logo.svg"
+                  alt="ក្រសួងការពារជាតិ Logo"
+                  width={isMobile ? "36" : "40"}
+                  height={isMobile ? "36" : "40"}
+                />
                 <Text
                   className="khmer-heading"
                   ml={3}
-                  fontSize={{ base: "md", md: "lg" }}
+                  fontSize={{ base: "sm", md: "md" }}
                   fontWeight="medium"
-                  color="gray.800"
-                  display={{ base: "none", sm: "block" }}
+                  color={COLORS.accent.gold}
+                  display={{ base: "block", sm: "block" }}
                   sx={{
                     fontFamily: "'Moul', 'Dangrek', 'Battambang', sans-serif"
                   }}
@@ -155,7 +272,7 @@ const Header = () => {
                   ក្រសួងការពារជាតិ
                 </Text>
               </Box>
-            </Link>
+            </NextLink>
           </Flex>
 
           {/* Desktop Navigation */}
@@ -164,8 +281,9 @@ const Header = () => {
             display={{ base: 'none', md: 'flex' }}
             flex="1"
             justify="center"
+            px={4}
           >
-            {navItems.map((item) => (
+            {finalNavItems.map((item) => (
               item.hasDropdown ? (
                 <Menu key={item.href} strategy="fixed">
                   <MenuButton
@@ -175,32 +293,44 @@ const Header = () => {
                     px={3}
                     py={2}
                     fontWeight="medium"
-                    color={router.pathname.startsWith(item.href) ? 'brand.500' : 'gray.600'}
-                    _hover={{ bg: 'transparent' }}
+                    color={router.pathname.startsWith(item.href) ? COLORS.accent.brightGold : COLORS.accent.gold}
+                    _hover={{
+                      bg: 'transparent',
+                      color: COLORS.text.light
+                    }}
                     size="sm"
                   >
+                    <Icon as={item.icon} mr={2} />
                     {item.label}
                   </MenuButton>
                   <Portal>
-                    <MenuList minWidth="200px" zIndex={20}>
-                      {getDropdownContent(item.href.substring(1)).map((content) => (
+                    <MenuList
+                      minWidth="200px"
+                      zIndex={20}
+                      bg={COLORS.black[800]}
+                      borderColor={COLORS.darkGreen[500]}
+                    >
+                      {getDropdownContent(item.href).map((content) => (
                         <MenuItem
                           key={content.id}
-                          as={Link}
+                          as={NextLink}
                           href={`${item.href}/${content.slug}`}
                           fontSize="sm"
-                          _hover={{ bg: 'gray.50', color: 'brand.500' }}
+                          bg={COLORS.black[800]}
+                          color={COLORS.text.light}
+                          _hover={{ bg: COLORS.black[700], color: COLORS.accent.brightGold }}
                         >
                           {content.title}
                         </MenuItem>
                       ))}
                       <MenuItem
-                        as={Link}
+                        as={NextLink}
                         href={item.href}
                         fontSize="sm"
                         fontWeight="medium"
-                        color="brand.500"
-                        _hover={{ bg: 'gray.50' }}
+                        bg={COLORS.black[800]}
+                        color={COLORS.accent.gold}
+                        _hover={{ bg: COLORS.black[700], color: COLORS.accent.brightGold }}
                       >
                         View all {item.label}
                       </MenuItem>
@@ -208,7 +338,7 @@ const Header = () => {
                   </Portal>
                 </Menu>
               ) : (
-                <Link key={item.href} href={item.href} passHref>
+                <NextLink key={item.href} href={item.href} passHref>
                   <Button
                     as="a"
                     variant="ghost"
@@ -216,45 +346,58 @@ const Header = () => {
                     py={2}
                     size="sm"
                     fontWeight="medium"
-                    color={router.pathname === item.href ? 'brand.500' : 'gray.600'}
-                    _hover={{ bg: 'transparent' }}
+                    color={router.pathname.startsWith(item.href) ? COLORS.accent.brightGold : COLORS.accent.gold}
+                    _hover={{
+                      bg: 'transparent',
+                      color: COLORS.text.light
+                    }}
                     aria-current={router.pathname === item.href ? 'page' : undefined}
                     position="relative"
-                    _after={router.pathname === item.href ? {
+                    _after={router.pathname.startsWith(item.href) ? {
                       content: '""',
                       position: 'absolute',
                       width: '60%',
                       height: '2px',
                       bottom: '0',
                       left: '20%',
-                      bg: 'brand.500',
+                      bg: COLORS.darkGreen[500],
                       borderRadius: 'full'
                     } : undefined}
                   >
+                    <Icon as={item.icon} mr={2} />
                     {item.label}
                   </Button>
-                </Link>
+                </NextLink>
               )
             ))}
           </HStack>
 
           {/* Authentication - Desktop */}
-          <HStack spacing={3} display={{ base: 'none', md: 'flex' }} justify="flex-end" flex={{ base: "1", lg: "0 0 auto" }}>
-            {isAuthLoaded && user ? (
+          <HStack spacing={3} display={{ base: 'none', md: 'flex' }} flex="0 0 auto">
+            {!isAuthLoaded ? (
+              <Skeleton height="40px" width="100px" />
+            ) : user ? (
               <>
                 {isAdmin && (
-                  <Link href="/admin" passHref>
+                  <NextLink href="/admin" passHref>
                     <Tooltip label="Admin Panel" placement="bottom">
                       <Button
                         colorScheme="green"
                         variant="outline"
                         size="sm"
-                        leftIcon={<Box as="span" fontSize="sm">👑</Box>}
+                        // leftIcon={<Box as="span" fontSize="sm">👑</Box>}
+                        borderColor={COLORS.darkGreen[500]}
+                        color={COLORS.text.light}
+                        _hover={{
+                          bg: COLORS.darkGreen[600],
+                          borderColor: COLORS.accent.gold,
+                          color: COLORS.accent.brightGold
+                        }}
                       >
                         Admin
                       </Button>
                     </Tooltip>
-                  </Link>
+                  </NextLink>
                 )}
                 <UserButton
                   afterSignOutUrl="/"
@@ -271,10 +414,32 @@ const Header = () => {
             ) : (
               <>
                 <SignInButton mode="modal">
-                  <Button variant="outline" colorScheme="brand" size="sm">Login</Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    borderColor={COLORS.darkGreen[500]}
+                    color={COLORS.text.light}
+                    _hover={{
+                      bg: COLORS.darkGreen[600],
+                      borderColor: COLORS.accent.gold,
+                      color: COLORS.accent.brightGold
+                    }}
+                  >
+                    Login
+                  </Button>
                 </SignInButton>
                 <SignUpButton mode="modal">
-                  <Button colorScheme="brand" size="sm">Register</Button>
+                  <Button
+                    size="sm"
+                    bg={COLORS.darkGreen[500]}
+                    color={COLORS.text.light}
+                    _hover={{
+                      bg: COLORS.darkGreen[600],
+                      color: COLORS.accent.brightGold
+                    }}
+                  >
+                    Register
+                  </Button>
                 </SignUpButton>
               </>
             )}
@@ -289,6 +454,11 @@ const Header = () => {
               variant="ghost"
               aria-label="Open menu"
               size="lg"
+              color={COLORS.accent.gold}
+              _hover={{
+                bg: 'transparent',
+                color: COLORS.text.light
+              }}
             />
           </Box>
         </Flex>
@@ -303,29 +473,17 @@ const Header = () => {
         size={{ base: "full", sm: "xs" }}
       >
         <DrawerOverlay />
-        <DrawerContent>
-          <DrawerHeader borderBottomWidth="1px" px={4}>
+        <DrawerContent bg={COLORS.darkBgAlt} color={COLORS.text.light}>
+          <DrawerHeader borderBottomWidth="1px" borderColor={borderColor} px={4}>
             <Flex justify="space-between" align="center">
               <Flex align="center">
-                <Box
-                  bg="brand.500"
-                  w="36px"
-                  h="36px"
-                  borderRadius="md"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  color="white"
-                  fontWeight="bold"
-                >
-                  Logo
-                </Box>
+                <img src="/images/logo.svg" alt="ក្រសួងការពារជាតិ Logo" width="36" height="36" />
                 <Text
                   className="khmer-heading"
                   ml={3}
                   fontSize="lg"
                   fontWeight="medium"
-                  color="gray.800"
+                  color={COLORS.accent.gold}
                   sx={{
                     fontFamily: "'Moul', 'Dangrek', 'Battambang', sans-serif"
                   }}
@@ -333,84 +491,103 @@ const Header = () => {
                   ក្រសួងការពារជាតិ
                 </Text>
               </Flex>
-              <DrawerCloseButton position="static" />
+              <DrawerCloseButton position="static" color={COLORS.accent.gold} />
             </Flex>
           </DrawerHeader>
           <DrawerBody p={0}>
             <VStack spacing={0} align="stretch">
-              {navItems.map((item) => (
+              {finalNavItems.map((item) => (
                 <Box key={item.href}>
-                  <Link href={item.href} passHref>
+                  <NextLink href={item.href} passHref>
                     <Box
                       as="a"
                       px={6}
                       py={4}
                       fontWeight="medium"
                       borderBottomWidth="1px"
-                      color={router.pathname.startsWith(item.href) ? 'brand.500' : 'gray.700'}
-                      bg={router.pathname.startsWith(item.href) ? 'gray.50' : 'white'}
-                      _hover={{ bg: 'gray.50' }}
+                      borderColor={COLORS.darkGreen[500]}
+                      color={router.pathname.startsWith(item.href) ? COLORS.accent.brightGold : COLORS.accent.gold}
+                      bg={router.pathname.startsWith(item.href) ? COLORS.black[700] : 'transparent'}
+                      _hover={{ bg: COLORS.black[700] }}
                       onClick={onClose}
                       display="flex"
                       justifyContent="space-between"
                       alignItems="center"
                     >
-                      {item.label}
+                      <Flex align="center">
+                        <Icon as={item.icon} mr={3} />
+                        {item.label}
+                      </Flex>
                       {item.hasDropdown && (
                         <ChevronDownIcon />
                       )}
                     </Box>
-                  </Link>
+                  </NextLink>
 
                   {/* Dropdown items for mobile */}
-                  {item.hasDropdown && (
+                  {item.hasDropdown && getDropdownContent(item.href).length > 0 && (
                     <VStack
                       spacing={0}
                       align="stretch"
-                      bg="gray.50"
+                      bg={COLORS.black[900]}
                       borderBottomWidth="1px"
+                      borderColor={COLORS.darkGreen[500]}
                     >
-                      {getDropdownContent(item.href.substring(1)).map((content) => (
-                        <Link key={content.id} href={`${item.href}/${content.slug}`} passHref>
+                      {getDropdownContent(item.href).map((content) => (
+                        <NextLink key={content.id} href={`${item.href}/${content.slug}`} passHref>
                           <Box
                             as="a"
                             px={8}
                             py={3}
                             fontSize="sm"
-                            color="gray.600"
-                            _hover={{ bg: 'gray.100' }}
+                            color={COLORS.text.muted}
+                            _hover={{ bg: COLORS.black[800], color: COLORS.accent.brightGold }}
                             onClick={onClose}
                             borderBottomWidth="1px"
-                            borderBottomColor="gray.100"
+                            borderBottomColor={COLORS.black[800]}
                           >
                             {content.title}
                           </Box>
-                        </Link>
+                        </NextLink>
                       ))}
-                      <Link href={item.href} passHref>
+                      <NextLink href={item.href} passHref>
                         <Box
                           as="a"
                           px={8}
                           py={3}
                           fontSize="sm"
                           fontWeight="medium"
-                          color="brand.500"
-                          _hover={{ bg: 'gray.100' }}
+                          color={COLORS.accent.gold}
+                          _hover={{ bg: COLORS.black[800], color: COLORS.accent.brightGold }}
                           onClick={onClose}
                         >
-                          View All {item.label}
+                          View All {item.label} →
                         </Box>
-                      </Link>
+                      </NextLink>
                     </VStack>
                   )}
                 </Box>
               ))}
 
               {/* Authentication - Mobile */}
-              <Box px={6} py={6}>
-                {isAuthLoaded && user ? (
+              <Box px={6} py={6} borderTopWidth="1px" borderColor={COLORS.darkGreen[500]}>
+                {!isAuthLoaded ? (
+                  <VStack spacing={4}>
+                    <Skeleton height="40px" width="100%" />
+                    <Skeleton height="40px" width="100%" />
+                  </VStack>
+                ) : user ? (
                   <VStack align="stretch" spacing={4}>
-                    <Flex alignItems="center" gap={3}>
+                    <Flex alignItems="center" justify="space-between">
+                      <Box>
+                        <Text fontWeight="medium">{user.fullName || user.username || 'Account'}</Text>
+                        <Text fontSize="sm" color={COLORS.text.muted}>
+                          {user.primaryEmailAddress?.emailAddress}
+                          {isAdmin && (
+                            <Text as="span" color={COLORS.accent.brightGold} ml={2}>(Admin)</Text>
+                          )}
+                        </Text>
+                      </Box>
                       <UserButton
                         afterSignOutUrl="/"
                         appearance={{
@@ -422,34 +599,59 @@ const Header = () => {
                           }
                         }}
                       />
-                      <Text fontWeight="medium">
-                        {user.fullName || user.username || 'Account'}
-                      </Text>
                     </Flex>
 
                     {isAdmin && (
-                      <Link href="/admin" passHref>
+                      <NextLink href="/admin" passHref>
                         <Button
                           as="a"
                           w="full"
                           colorScheme="green"
                           leftIcon={<Box as="span" fontSize="sm">👑</Box>}
                           onClick={onClose}
+                          bg={COLORS.darkGreen[500]}
+                          color={COLORS.text.light}
+                          _hover={{
+                            bg: COLORS.darkGreen[600],
+                            color: COLORS.accent.brightGold
+                          }}
                         >
                           Admin Panel
                         </Button>
-                      </Link>
+                      </NextLink>
                     )}
                   </VStack>
                 ) : (
                   <VStack spacing={4}>
                     <SignInButton mode="modal">
-                      <Button as="a" w="full" variant="outline" colorScheme="brand" onClick={onClose}>
+                      <Button
+                        as="a"
+                        w="full"
+                        variant="outline"
+                        onClick={onClose}
+                        borderColor={COLORS.darkGreen[500]}
+                        color={COLORS.text.light}
+                        _hover={{
+                          bg: COLORS.darkGreen[600],
+                          borderColor: COLORS.accent.gold,
+                          color: COLORS.accent.brightGold
+                        }}
+                      >
                         Login
                       </Button>
                     </SignInButton>
                     <SignUpButton mode="modal">
-                      <Button as="a" w="full" colorScheme="brand" onClick={onClose}>
+                      <Button
+                        as="a"
+                        w="full"
+                        onClick={onClose}
+                        bg={COLORS.darkGreen[500]}
+                        color={COLORS.text.light}
+                        _hover={{
+                          bg: COLORS.darkGreen[600],
+                          color: COLORS.accent.brightGold
+                        }}
+                      >
                         Register
                       </Button>
                     </SignUpButton>
