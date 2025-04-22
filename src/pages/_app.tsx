@@ -1,18 +1,3 @@
-// // pages/_app.tsx
-// import { ChakraProvider } from "@chakra-ui/react";
-// import { AppProps } from "next/app";
-// import { AuthProvider } from "@/context/AuthContext";
-
-// export default function App({ Component, pageProps }: AppProps) {
-//   return (
-//     <ChakraProvider>
-//       <AuthProvider>
-//         <Component {...pageProps} />
-//       </AuthProvider>
-//     </ChakraProvider>
-//   );
-// }
-
 import type { AppProps } from 'next/app';
 import { ChakraProvider } from '@chakra-ui/react';
 import { ClerkProvider } from '@clerk/nextjs';
@@ -31,4 +16,3 @@ export default function App({ Component, pageProps }: AppProps) {
     </ClerkProvider>
   );
 }
-
