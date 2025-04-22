@@ -81,6 +81,7 @@ export default function AdminBooks() {
     if (!file) return null;
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("folder", folder);
     try {
       const res = await fetch("/api/upload", {
         method: "POST",

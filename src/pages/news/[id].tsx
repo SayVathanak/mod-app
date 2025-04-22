@@ -16,7 +16,7 @@ import {
     Divider,
     Avatar,
 } from "@chakra-ui/react";
-import { FaCalendarAlt, FaUser, FaArrowLeft, FaShare, FaBookmark } from "react-icons/fa";
+import { FaCalendarAlt, FaArrowLeft, FaShare, FaBookmark } from "react-icons/fa";
 import NextLink from "next/link";
 import { motion } from "framer-motion";
 

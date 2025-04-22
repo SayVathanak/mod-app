@@ -10,7 +10,7 @@ import {
     Image,
     Button,
     Flex,
-    Icon,
+    // Icon,
     Badge,
     Container,
     useBreakpointValue,
@@ -23,7 +23,7 @@ import {
     useDisclosure,
     HStack
 } from "@chakra-ui/react";
-import { FaPlayCircle, FaRegClock, FaFilter } from "react-icons/fa";
+import { FaFilter } from "react-icons/fa";
 import { motion } from "framer-motion";
 
 const MotionBox = motion(Box);
@@ -63,10 +63,10 @@ export default function VideosPage() {
         fetchVideos();
     }, []);
 
-    const handleVideoClick = useCallback((video: Video) => {
-        setSelectedVideo(video);
-        onOpen();
-    }, [onOpen]);
+    // const handleVideoClick = useCallback((video: Video) => {
+    //     setSelectedVideo(video);
+    //     onOpen();
+    // }, [onOpen]);
 
     if (loading) {
         return (

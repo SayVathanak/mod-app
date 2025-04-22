@@ -6,7 +6,7 @@ import {
     Text,
     Image,
     Link,
-    VStack,
+    // VStack,
     Spinner,
     Flex,
     Grid,

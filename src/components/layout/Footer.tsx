@@ -83,7 +83,7 @@ const Footer = () => {
   const headingColor = COLORS.accent.gold;
 
   // Responsive column count
-  const columnCount = useBreakpointValue({ base: 1, sm: 2, md: 3, lg: 4 }) || 1;
+  // const columnCount = useBreakpointValue({ base: 1, sm: 2, md: 3, lg: 4 }) || 1;
 
   // Responsive layout for footer sections
   const showFullFooter = useBreakpointValue({ base: false, md: true });

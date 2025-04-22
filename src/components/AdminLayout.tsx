@@ -1,6 +1,6 @@
 // components/AdminLayout.tsx
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import {
     Box,
     Flex,
@@ -9,8 +9,6 @@ import {
     Icon,
     Link,
     VStack,
-    useColorModeValue,
-    IconButton,
     Tooltip,
 } from "@chakra-ui/react";
 import NextLink from "next/link";

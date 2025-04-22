@@ -1,4 +1,4 @@
-import { Box, Container, Heading, Text, Button, Stack, Flex, SimpleGrid, Image, Icon, VStack, HStack, Badge, useColorModeValue } from "@chakra-ui/react";
+import { Box, Container, Heading, Text, Button, Flex, SimpleGrid, Image, Icon, HStack, Badge } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import NextLink from "next/link";
 import { FaBook, FaVideo, FaMap, FaNewspaper, FaArrowRight, FaCalendarAlt, FaPlay } from "react-icons/fa";
@@ -56,14 +56,10 @@ export default function Home() {
   const [books, setBooks] = useState<Book[]>([]);
   const [videos, setVideos] = useState<Video[]>([]);
   const [activeSlide, setActiveSlide] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  // Removed unused isLoading state variable
 
   // Fixed color values for dark military theme
-  const cardBg = colors.darkBgAlt;
-  const cardBorder = colors.midGreen;
-  const textColor = colors.textLight;
-  const headingColor = colors.gold;
-  const accentColor = "green"; // For Chakra UI components
+  // Removed unused color variables
 
   // Animation variants
   const fadeInUp = {
@@ -97,7 +93,6 @@ export default function Home() {
   ];
 
   const fetchRecentContent = async () => {
-    setIsLoading(true);
     try {
       // Fetch recent content in parallel
       const [newsRes, booksRes, videosRes] = await Promise.all([
@@ -123,8 +118,6 @@ export default function Home() {
       setNews([]);
       setBooks([]);
       setVideos([]);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -147,7 +140,7 @@ export default function Home() {
   ];
 
   return (
-    <Box bg={colors.darkBg} color={textColor} minH="100vh">
+    <Box bg={colors.darkBg} color={colors.textLight} minH="100vh">
       {/* Hero Slider - Adjusted for better mobile view */}
       <Box position="relative" height={{ base: "40vh", sm: "50vh", md: "60vh" }} overflow="hidden">
         {slides.map((slide, index) => (
@@ -174,7 +167,7 @@ export default function Home() {
                 direction="column"
                 justify="center"
                 maxW={{ base: "100%", md: "60%" }}
-                color={textColor}
+                color={colors.textLight}
               >
                 <MotionBox
                   initial={{ y: 30, opacity: 0 }}
