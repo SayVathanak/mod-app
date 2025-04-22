@@ -1,4 +1,4 @@
-// pages/news/[id].tsx - with improved error handlinga
+// pages/news/[id].tsx
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import {
@@ -16,12 +16,13 @@ import {
     Divider,
     Avatar,
     useToast,
+    Spinner
 } from "@chakra-ui/react";
 import { FaCalendarAlt, FaArrowLeft, FaShare, FaBookmark } from "react-icons/fa";
 import NextLink from "next/link";
 import { motion } from "framer-motion";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const MotionBox = motion(Box);
 
@@ -33,6 +34,7 @@ type NewsItem = {
     author?: string;
     createdAt?: string;
     category?: string;
+    readTime?: string;
 };
 
 type Props = {
@@ -40,9 +42,12 @@ type Props = {
     error?: string;
 };
 
-export default function NewsDetailPage({ news, error }: Props) {
+export default function NewsDetailPage({ news: initialNews, error }: Props) {
     const router = useRouter();
     const toast = useToast();
+    const [news, setNews] = useState(initialNews);
+    const [isLoading, setIsLoading] = useState(false);
+    const { id } = router.query;
 
     useEffect(() => {
         if (error) {
@@ -55,6 +60,41 @@ export default function NewsDetailPage({ news, error }: Props) {
             });
         }
     }, [error, toast]);
+
+    useEffect(() => {
+        // Client-side fallback if SSR fails
+        const fetchNews = async () => {
+            if (!news && !error && id) {
+                try {
+                    setIsLoading(true);
+                    const res = await fetch(`/api/news/${id}`);
+                    if (!res.ok) throw new Error(res.statusText);
+                    const data = await res.json();
+                    setNews(data);
+                } catch (err) {
+                    toast({
+                        title: "Error",
+                        description: "Failed to load article",
+                        status: "error",
+                        duration: 5000,
+                        isClosable: true,
+                    });
+                } finally {
+                    setIsLoading(false);
+                }
+            }
+        };
+        fetchNews();
+    }, [id, news, error, toast]);
+
+    if (isLoading) {
+        return (
+            <Container maxW="container.md" py={16} centerContent>
+                <Spinner size="xl" thickness="4px" speed="0.65s" />
+                <Text mt={4}>Loading article...</Text>
+            </Container>
+        );
+    }
 
     if (!news) {
         return (
@@ -75,12 +115,21 @@ export default function NewsDetailPage({ news, error }: Props) {
         );
     }
 
+    // Format date if it exists
+    const formattedDate = news.createdAt
+        ? new Date(news.createdAt).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        })
+        : "Recent";
+
     return (
         <>
             <Head>
-                <title>{news.title} | MediaVerse</title>
+                <title>{news.title} | Ministry of National Defense</title>
                 <meta name="description" content={news.body.slice(0, 150)} />
-                <meta property="og:title" content={`${news.title} | MediaVerse`} />
+                <meta property="og:title" content={`${news.title} | Ministry of National Defense`} />
                 <meta property="og:description" content={news.body.slice(0, 150)} />
                 {news.imageUrl && <meta property="og:image" content={news.imageUrl} />}
             </Head>
@@ -104,7 +153,7 @@ export default function NewsDetailPage({ news, error }: Props) {
                     </Link>
 
                     {news.category && (
-                        <Badge colorScheme="green" mb={4}>
+                        <Badge colorScheme="green" mb={4} fontSize="sm" px={2} py={1}>
                             {news.category}
                         </Badge>
                     )}
@@ -130,18 +179,34 @@ export default function NewsDetailPage({ news, error }: Props) {
                             />
                             <Box>
                                 <Text fontSize="sm" fontWeight="bold">
-                                    {news.author || "MediaVerse Staff"}
+                                    {news.author || "Say Vathanak"}
                                 </Text>
-                                <Text fontSize="xs" color="gray.500">
-                                    <Icon as={FaCalendarAlt} mr={1} />
-                                    {news.createdAt || "Recent"}
-                                </Text>
+                                <HStack fontSize="xs" color="gray.500">
+                                    <Icon as={FaCalendarAlt} />
+                                    <Text>{formattedDate}</Text>
+                                    {news.readTime && (
+                                        <>
+                                            <Text>•</Text>
+                                            <Text>{news.readTime}</Text>
+                                        </>
+                                    )}
+                                </HStack>
                             </Box>
                         </HStack>
 
                         <HStack mt={[4, 0]} spacing={4}>
-                            <Icon as={FaShare} color="gray.500" cursor="pointer" />
-                            <Icon as={FaBookmark} color="gray.500" cursor="pointer" />
+                            <Icon
+                                as={FaShare}
+                                color="gray.500"
+                                cursor="pointer"
+                                _hover={{ color: "brand.500" }}
+                            />
+                            <Icon
+                                as={FaBookmark}
+                                color="gray.500"
+                                cursor="pointer"
+                                _hover={{ color: "brand.500" }}
+                            />
                         </HStack>
                     </Flex>
 
@@ -151,12 +216,25 @@ export default function NewsDetailPage({ news, error }: Props) {
                             borderRadius="lg"
                             overflow="hidden"
                             boxShadow="dark-lg"
+                            position="relative"
+                            minH="300px"
                         >
                             <Image
                                 src={news.imageUrl}
                                 alt={news.title}
                                 w="100%"
+                                h="auto"
                                 objectFit="cover"
+                                fallback={
+                                    <Flex
+                                        h="300px"
+                                        bg="dark.700"
+                                        align="center"
+                                        justify="center"
+                                    >
+                                        <Text>Image not available</Text>
+                                    </Flex>
+                                }
                             />
                         </Box>
                     )}
@@ -166,7 +244,7 @@ export default function NewsDetailPage({ news, error }: Props) {
                         color="gray.300"
                         whiteSpace="pre-wrap"
                         lineHeight="1.8"
-                        fontFamily="'Kantumruy Pro', sans-serif" // 👈 Apply font here
+                        fontFamily="'Kantumruy Pro', sans-serif"
                     >
                         {news.body.split('\n').map((paragraph, idx) => (
                             <Text key={idx} mb={4}>
@@ -178,10 +256,10 @@ export default function NewsDetailPage({ news, error }: Props) {
                     <Divider my={10} opacity={0.3} />
 
                     <Flex justify="space-between" align="center">
-                        <Button variant="outline">
+                        <Button variant="outline" isDisabled>
                             Previous Article
                         </Button>
-                        <Button variant="outline">
+                        <Button variant="outline" isDisabled>
                             Next Article
                         </Button>
                     </Flex>
@@ -191,31 +269,58 @@ export default function NewsDetailPage({ news, error }: Props) {
     );
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
     const { id } = context.params!;
 
     try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ||
-            process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` :
-            'http://localhost:3000';
+        // Use absolute URL that works in any environment
+        const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+        const host = context.req.headers.host || 'localhost:3000';
+        const url = `${protocol}://${host}/api/news/${id}`;
 
-        const res = await fetch(`${baseUrl}/api/news/${id}`);
+        console.log(`Fetching news from: ${url}`);
+
+        const res = await fetch(url);
 
         if (!res.ok) {
-            throw new Error(`Failed to fetch news: ${res.status}`);
+            throw new Error(`Failed to fetch: ${res.status}`);
         }
 
         const news = await res.json();
 
-        return { props: { news } };
+        if (!news) {
+            return {
+                props: {
+                    news: null,
+                    error: "Article not found"
+                }
+            };
+        }
+
+        return {
+            props: {
+                news,
+                // Add readTime if not present
+                ...(!news.readTime && {
+                    readTime: calculateReadTime(news.body)
+                })
+            }
+        };
     } catch (error) {
         console.error("Error fetching news:", error);
-        // Return null news with error message instead of notFound
         return {
             props: {
                 news: null,
-                error: "Failed to load the article. Please try again later."
+                error: error instanceof Error ? error.message : "Failed to load article"
             }
         };
     }
 };
+
+// Helper function to calculate read time
+function calculateReadTime(text: string): string {
+    const wordsPerMinute = 200;
+    const wordCount = text.trim().split(/\s+/).length;
+    const minutes = Math.ceil(wordCount / wordsPerMinute);
+    return `${minutes} min read`;
+}

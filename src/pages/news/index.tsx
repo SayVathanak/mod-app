@@ -193,7 +193,7 @@ export default function NewsPage() {
                             color={colors.gold}
                             textAlign="center"
                         >
-                            ព័មានទូទៅ
+                            ព័តមានទូទៅ
                         </KhmerTitle>
                         <Box width="120px" height="2px" bg={colors.brightGold} mx="auto" mb={8} />
 

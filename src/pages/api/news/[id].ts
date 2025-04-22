@@ -7,15 +7,25 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    const { id } = req.query;
+    // Handle both /api/news/[id] and /_next/data/[buildID]/news/[id].json
+    let id: string;
+    
+    if (req.url?.includes('/_next/data/')) {
+        // Extract ID from Next.js data route format
+        const parts = req.url.split('/');
+        id = parts[parts.length - 1].replace('.json', '');
+    } else {
+        // Standard API route parameter
+        id = req.query.id as string;
+    }
 
     // Check if id is provided and is a valid string
     if (!id || typeof id !== 'string') {
         return res.status(400).json({ message: 'Invalid article ID' });
     }
 
+    // Rest of your existing handler code remains the same...
     try {
-        // Establish database connection
         const { db } = await connectToDatabase();
 
         // Add debug logging
