@@ -464,7 +464,7 @@ export default function NewsPage() {
                                                             src={trending[0].imageUrl}
                                                             alt={trending[0].title}
                                                             w="100%"
-                                                            h={{ base: "300px", md: "400px" }}
+                                                            h={{ base: "240px", md: "30px" }}
                                                             objectFit="cover"
                                                         />
                                                     </Box>
