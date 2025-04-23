@@ -28,31 +28,6 @@ export const NewsGrid = ({ newsItems, getReadTime, limit = 4 }: NewsGridProps) =
 
     return (
         <VStack spacing={3} align="stretch" height="100%">
-            {/* View All News Link - moved to top and centered */}
-              <MotionBox
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeIn}
-                transition={{ duration: 0.4, delay: 0.2 }}
-                display="flex"
-                justifyContent="center"
-                mb={2} // optional margin bottom to separate from grid
-              >
-                <Button
-                  as={NextLink}
-                  href="/news"
-                  variant="outline"
-                  rightIcon={<FaArrowRight />}
-                  borderColor={colors.gold}
-                  color={colors.gold}
-                  _hover={{ bg: colors.darkGreen, borderColor: colors.brightGold, color: colors.brightGold }}
-                  size={{ base: "sm", md: "md" }}
-                >
-                  View All News
-                </Button>
-              </MotionBox>
-
             {displayItems.length > 0 ? (
                 displayItems.map((item, index) => (
                     <MotionBox
