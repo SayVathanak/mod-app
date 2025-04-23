@@ -139,8 +139,7 @@ export const NewsGrid = ({ newsItems, getReadTime, limit = 4 }: NewsGridProps) =
                     borderColor={colors.gold}
                     color={colors.gold}
                     _hover={{ bg: colors.darkGreen, borderColor: colors.brightGold, color: colors.brightGold }}
-                    size={{ base: "xs", md: "sm" }}
-                    fontFamily="'Kantumruy Pro', sans-serif"
+                    size={{ base: "sm", md: "md" }}
                 >
                     View All News
                 </Button>
