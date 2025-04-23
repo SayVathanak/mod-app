@@ -110,15 +110,17 @@ export const NewsGrid = ({ newsItems, getReadTime, limit = 6 }: NewsGridProps) =
               )}
 
               <Box p={4}>
-                <Badge
-                  mb={2}
-                  bg={colors.darkGreen}
-                  color={colors.brightGold}
-                  fontSize="xs"
-                  fontFamily="'Kantumruy Pro', sans-serif"
-                >
-                  {item.category || "News"}
-                </Badge>
+               {/*
+<Badge
+  mb={2}
+  bg={colors.darkGreen}
+  color={colors.brightGold}
+  fontSize="xs"
+  fontFamily="'Kantumruy Pro', sans-serif"
+>
+  {item.category || "News"}
+</Badge>
+*/}
 
                 <Text
                   as="h3"
