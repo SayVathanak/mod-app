@@ -401,15 +401,16 @@ export default function NewsPage() {
                                                     {featured.category}
                                                 </Badge>
                                             )}
-                                            <Heading
+                                            <Text
                                                 size="md"
                                                 mb={2}
                                                 color={colors.textLight}
-                                                fontFamily="Khmer Moul, sans-serif"
+                                                //fontFamily="Khmer Moul, sans-serif"
+fontFamily="'Kantumruy Pro', sans-serif"
                                             >
                                                 {featured.title}
-                                            </Heading>
-                                            <Text color={colors.textMuted} noOfLines={2} fontSize="sm" mb={3}>
+                                            </Text>
+                                            <Text color={colors.textMuted} noOfLines={2} fontFamily="'Kantumruy Pro', sans-serif" fontSize="sm" mb={3}>
                                                 {featured.body}
                                             </Text>
                                             <HStack fontSize="xs" color={colors.textMuted} spacing={4}>
@@ -481,14 +482,14 @@ export default function NewsPage() {
                                                     </Badge>
                                                 )}
 
-                                                <Heading
+                                                <Text
                                                     size="md"
                                                     mb={3}
                                                     color={colors.textLight}
                                                     fontFamily="Khmer Moul, sans-serif"
                                                 >
                                                     {trending[0].title}
-                                                </Heading>
+                                                </Text>
 
                                                 <Text color={colors.textMuted} mb={4} noOfLines={3}>
                                                     {trending[0].body}
@@ -811,14 +812,15 @@ export default function NewsPage() {
                                                                 </Text>
                                                             </Flex>
 
-                                                            <Heading
+                                                            <Text
                                                                 size="md"
                                                                 mb={3}
                                                                 color={colors.textLight}
-                                                                fontFamily="Khmer Moul, sans-serif"
+                                                                //fontFamily="Khmer Moul, sans-serif"
+fontFamily="'Kantumruy Pro', sans-serif"
                                                             >
                                                                 {item.title}
-                                                            </Heading>
+                                                            </Text>
 
                                                             <Text
                                                                 color={colors.textMuted}
@@ -906,7 +908,7 @@ export default function NewsPage() {
                                                                 {index + 1}.
                                                             </Text>
                                                             <Box>
-                                                                <Heading
+                                                                <Text
                                                                     size="xs"
                                                                     mb={1}
                                                                     color={colors.textLight}
@@ -914,7 +916,7 @@ export default function NewsPage() {
                                                                     _groupHover={{ color: colors.gold }}
                                                                 >
                                                                     {item.title}
-                                                                </Heading>
+                                                                </Text>
                                                                 <HStack fontSize="xs" color={colors.textMuted} spacing={2}>
                                                                     <Text>{formatDate(item.createdAt)}</Text>
                                                                     {item.category && (
@@ -1079,14 +1081,14 @@ export default function NewsPage() {
                                                                 {item.category}
                                                             </Badge>
                                                         )}
-                                                        <Heading
+                                                        <Text
                                                             size="sm"
                                                             mb={2}
                                                             color={colors.textLight}
                                                             fontFamily="Khmer Moul, sans-serif"
                                                         >
                                                             {item.title}
-                                                        </Heading>
+                                                        </Text>
                                                         <Text fontSize="sm" color={colors.textMuted} noOfLines={2} mb={3}>
                                                             {item.body}
                                                         </Text>
