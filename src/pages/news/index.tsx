@@ -192,7 +192,7 @@ export default function NewsPage() {
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
-                        mb={10}
+                        mb={5}
                     >
                         <Box
                             display="grid"
