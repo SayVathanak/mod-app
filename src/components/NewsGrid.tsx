@@ -1,4 +1,4 @@
-import { VStack, Box, HStack, Badge, Heading, Text, LinkBox, LinkOverlay, Image, Button, Flex, Icon } from "@chakra-ui/react";
+import { VStack, Box, HStack, Badge, Heading, Text, LinkBox, LinkOverlay, Image, Button, Flex, SimpleGrid, Icon} from "@chakra-ui/react";
 import NextLink from "next/link";
 import { FaArrowRight, FaCalendarAlt, FaClock } from "react-icons/fa";
 import { motion } from "framer-motion";
