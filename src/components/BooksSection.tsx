@@ -3,6 +3,7 @@ import NextLink from "next/link";
 import { FaArrowRight, FaBook } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { colors } from "../theme/colors";
+import { KhmerTitle } from "./shared/KhmerTitle";
 
 const MotionBox = motion(Box);
 
@@ -25,7 +26,7 @@ export const BooksSection = ({ books }: BooksSectionProps) => {
                     viewport={{ once: true }}
                     variants={fadeInUp}
                 >
-                    <Heading size={{ base: "md", md: "lg" }} color={colors.gold}>Featured Books</Heading>
+                    <KhmerTitle size={{ base: "md", md: "lg" }} color={colors.gold}>កម្រងអត្ថបទ</KhmerTitle>
                 </MotionBox>
                 <MotionBox
                     initial={{ opacity: 0, x: 20 }}
