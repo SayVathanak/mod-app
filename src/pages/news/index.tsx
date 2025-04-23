@@ -321,15 +321,16 @@ export default function NewsPage() {
                                                     {featured.category}
                                                 </Badge>
                                             )}
-                                            <Heading
-                                                size="xl"
+                                            <Text
+                                                size="md"
                                                 color="white"
                                                 mb={3}
                                                 textShadow="0 2px 4px rgba(0,0,0,0.7)"
-                                                fontFamily="Khmer Moul, sans-serif"
+                                                //fontFamily="Khmer Moul, sans-serif"
+                                                fontFamily="'Kantumruy Pro', sans-serif"
                                             >
                                                 {featured.title}
-                                            </Heading>
+                                            </Text>
                                             <Text color="gray.300" noOfLines={2} fontSize="lg" mb={4} maxW="800px">
                                                 {featured.body}
                                             </Text>
@@ -464,7 +465,7 @@ export default function NewsPage() {
                                                             src={trending[0].imageUrl}
                                                             alt={trending[0].title}
                                                             w="100%"
-                                                            h={{ base: "240px", md: "30px" }}
+                                                            h={{ base: "240px", md: "300px" }}
                                                             objectFit="cover"
                                                         />
                                                     </Box>
@@ -654,15 +655,16 @@ export default function NewsPage() {
                                                         as={NextLink}
                                                         href={`/news/${item._id}`}
                                                     >
-                                                        <Heading
-                                                            size="sm"
+                                                        <Text
+                                                            size="md"
                                                             mb={2}
                                                             noOfLines={2}
                                                             color={colors.textLight}
-                                                            fontFamily="Khmer Moul, sans-serif"
+                                                            //fontFamily="Khmer Moul, sans-serif"
+                                                            fontFamily="'Kantumruy Pro', sans-serif"
                                                         >
                                                             {item.title}
-                                                        </Heading>
+                                                        </Text>
                                                     </LinkOverlay>
 
                                                     <Text
@@ -670,6 +672,7 @@ export default function NewsPage() {
                                                         color={colors.textMuted}
                                                         noOfLines={2}
                                                         mb={3}
+                                                        fontFamily="'Kantumruy Pro', sans-serif"
                                                     >
                                                         {item.body}
                                                     </Text>
