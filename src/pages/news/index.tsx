@@ -402,7 +402,7 @@ export default function NewsPage() {
                                                 </Badge>
                                             )}
                                             <Text
-                                                size="md"
+                                                size="lg"
                                                 mb={2}
                                                 color={colors.textLight}
                                                 //fontFamily="Khmer Moul, sans-serif"
@@ -466,7 +466,7 @@ fontFamily="'Kantumruy Pro', sans-serif"
                                                             src={trending[0].imageUrl}
                                                             alt={trending[0].title}
                                                             w="100%"
-                                                            h={{ base: "240px", md: "300px" }}
+                                                            h={{ base: "240px", md: "340px" }}
                                                             objectFit="cover"
                                                         />
                                                     </Box>
@@ -486,12 +486,13 @@ fontFamily="'Kantumruy Pro', sans-serif"
                                                     size="md"
                                                     mb={3}
                                                     color={colors.textLight}
-                                                    fontFamily="Khmer Moul, sans-serif"
+                                                    //fontFamily="Khmer Moul, sans-serif"
+fontFamily="'Kantumruy Pro', sans-serif"
                                                 >
                                                     {trending[0].title}
                                                 </Text>
 
-                                                <Text color={colors.textMuted} mb={4} noOfLines={3}>
+                                                <Text color={colors.textMuted} mb={4} fontFamily="'Kantumruy Pro', sans-serif" noOfLines={3}>
                                                     {trending[0].body}
                                                 </Text>
 
@@ -576,7 +577,8 @@ fontFamily="'Kantumruy Pro', sans-serif"
                                                                 size="sm"
                                                                 mb={2}
                                                                 color={colors.textLight}
-                                                                fontFamily="Khmer Moul, sans-serif"
+fontFamily="'Kantumruy Pro', sans-serif"
+                                                                //fontFamily="Khmer Moul, sans-serif"
                                                             >
                                                                 {item.title}
                                                             </Heading>
