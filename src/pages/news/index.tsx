@@ -334,7 +334,7 @@ export default function NewsPage() {
                                             <Text
                                               color="gray.300"
                                               noOfLines={2}
-                                              fontSize="sm"
+                                              fontSize={{ base: "xs", md: "sm" }}
                                               mb={4}
                                               fontFamily="'Kantumruy Pro', sans-serif"
                                               maxW="800px"
