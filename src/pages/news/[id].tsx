@@ -23,6 +23,7 @@ import NextLink from "next/link";
 import { motion } from "framer-motion";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { KhmerTitle } from "@/components/shared/KhmerTitle";
 
 const MotionBox = motion(Box);
 
@@ -158,9 +159,13 @@ export default function NewsDetailPage({ news: initialNews, error }: Props) {
                         </Badge>
                     )}
 
-                    <Heading mb={6} fontSize={["2xl", "3xl", "4xl"]} lineHeight="1.2">
+                    <KhmerTitle
+                        mb={6}
+                        fontSize={["md", "lg", "xl"]}
+                        lineHeight="1.5"
+                    >
                         {news.title}
-                    </Heading>
+                    </KhmerTitle>
 
                     <Flex
                         direction={["column", "row"]}
@@ -241,7 +246,7 @@ export default function NewsDetailPage({ news: initialNews, error }: Props) {
 
                     <Box
                         fontSize={["md", "lg"]}
-                        color="gray.300"
+                        color="gray.200"
                         whiteSpace="pre-wrap"
                         lineHeight="1.8"
                         fontFamily="'Kantumruy Pro', sans-serif"
