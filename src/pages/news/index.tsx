@@ -617,7 +617,7 @@ fontFamily="'Kantumruy Pro', sans-serif"
                                         <Icon as={FaTag} color={colors.darkGreen} />
                                     </Box>
                                     <KhmerTitle
-                                        //size="md"
+                                        size="sm"
                                         color={colors.brightGold}
                                         //fontFamily="Khmer Moul, sans-serif"
                                     >
