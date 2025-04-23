@@ -71,16 +71,18 @@ export const NewsGrid = ({ newsItems, getReadTime, limit = 4 }: NewsGridProps) =
                                 </Box>
                             )}
                             <Box py={0} pr={3} flex="1">
+                                {/*
                                 <Badge
-                                    mb={0.5}
-                                    size="xs"
-                                    colorScheme="green"
-                                    variant="subtle"
-                                    bg={colors.darkGreen}
-                                    color={colors.brightGold}
+                                  mb={0.5}
+                                  size="xs"
+                                  colorScheme="green"
+                                  variant="subtle"
+                                  bg={colors.darkGreen}
+                                  color={colors.brightGold}
                                 >
-                                    {item.category || "News"}
+                                  {item.category || "News"}
                                 </Badge>
+                                */}
                                 <Text
                                     as="h4"
                                     fontSize="xs"
