@@ -99,11 +99,11 @@ const NewsItem = ({ newsItem, index, getReadTime }: NewsItemProps) => {
                 >
                     {newsItem.category || "News"}
                 </Badge>
-                <Heading size="md" mb={2} noOfLines={2} color={colors.gold}>
+                <Text size="md" mb={2} noOfLines={2} color={colors.gold}>
                     <LinkOverlay as={NextLink} href={`/news/${newsItem._id}`}>
                         {newsItem.title}
                     </LinkOverlay>
-                </Heading>
+                </Text>
                 <Text noOfLines={2} mb={3} color={colors.textLight} fontSize={{ base: "sm", md: "md" }}>
                     {newsItem.body}
                 </Text>
