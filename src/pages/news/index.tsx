@@ -322,7 +322,7 @@ export default function NewsPage() {
                                                 </Badge>
                                             )}
                                             <Text
-                                                size="md"
+                                                size="lg"
                                                 color="white"
                                                 mb={3}
                                                 textShadow="0 2px 4px rgba(0,0,0,0.7)"
@@ -331,7 +331,7 @@ export default function NewsPage() {
                                             >
                                                 {featured.title}
                                             </Text>
-                                            <Text color="gray.300" noOfLines={2} fontSize="lg" mb={4} maxW="800px">
+                                            <Text color="gray.300" noOfLines={2} fontSize="sm" mb={4} maxW="800px">
                                                 {featured.body}
                                             </Text>
                                             <HStack spacing={6} color={colors.textLight} fontSize="sm">
