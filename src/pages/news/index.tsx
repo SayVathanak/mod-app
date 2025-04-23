@@ -429,7 +429,7 @@ export default function NewsPage() {
                                 <Box width="5px" height="24px" bg={colors.brightGold} mr={3} />
                                 <KhmerTitle
                                     size="sm"
-                                    color={colors.gold}
+                                    color={colors.brightGold}
                                     //fontFamily="Khmer Moul, sans-serif"
                                 >
                                     ព័ត៌មានថ្មីៗ
