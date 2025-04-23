@@ -26,7 +26,7 @@ export const BooksSection = ({ books }: BooksSectionProps) => {
                     viewport={{ once: true }}
                     variants={fadeInUp}
                 >
-                    <KhmerTitle size={{ base: "md", md: "lg" }} color={colors.gold}>កម្រងអត្ថបទ</KhmerTitle>
+                    <KhmerTitle size={{ base: "sm", md: "md" }} color={colors.gold}>កម្រងអត្ថបទ</KhmerTitle>
                 </MotionBox>
                 <MotionBox
                     initial={{ opacity: 0, x: 20 }}
