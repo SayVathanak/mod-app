@@ -42,7 +42,7 @@ export const NewsGrid = ({ newsItems, getReadTime, limit = 6 }: NewsGridProps) =
 
   return (
     <VStack spacing={6} align="stretch">
-      {/* Section Header */}
+      {/* Header */}
       <Flex
         justify={{ base: "center", md: "space-between" }}
         align="center"
@@ -74,7 +74,7 @@ export const NewsGrid = ({ newsItems, getReadTime, limit = 6 }: NewsGridProps) =
         </Button>
       </Flex>
 
-      {/* News Cards Grid */}
+      {/* News Grid */}
       {displayItems.length > 0 ? (
         <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
           {displayItems.map((item, index) => (
