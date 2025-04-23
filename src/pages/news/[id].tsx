@@ -187,17 +187,17 @@ export default function NewsDetailPage({ news: initialNews, relatedNews = [], er
                                 </Badge>
                             )}
 
-                            <KhmerTitle
+                            <Text
                                 // as="h1"
-                                // mb={6}
-                                // fontSize={{ base: "md", md: "xl"}}
+                                fontSize={{ base: "md", md: "xl" }}
                                 lineHeight="1.2"
-                                // fontFamily={"Khmer Moul"}
+                                // fontFamily="Khmer Moul"
+                                fontFamily="'Kantumruy Pro', sans-serif"
                                 color={colors.gold}
                                 mb={6}
                             >
                                 {news.title}
-                            </KhmerTitle>
+                            </Text>
 
                             {news.imageUrl && (
                                 <Box
