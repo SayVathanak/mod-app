@@ -427,13 +427,13 @@ export default function NewsPage() {
                         <Box mb={12}>
                             <Flex align="center" mb={6}>
                                 <Box width="5px" height="24px" bg={colors.brightGold} mr={3} />
-                                <Heading
+                                <KhmerTitle
                                     size="md"
                                     color={colors.gold}
-                                    fontFamily="Khmer Moul, sans-serif"
+                                    //fontFamily="Khmer Moul, sans-serif"
                                 >
                                     ព័ត៌មានថ្មីៗ
-                                </Heading>
+                                </KhmerTitle>
                             </Flex>
 
                             <Grid
