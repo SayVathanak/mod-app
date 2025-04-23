@@ -29,7 +29,7 @@ import {
     LinkOverlay
 } from "@chakra-ui/react";
 import NextLink from "next/link";
-import { FaCalendarAlt, FaArrowRight, FaSearch, FaUser, FaClock, FaTag, FaExclamationCircle } from "react-icons/fa";
+import { FaCalendarAlt, FaArrowRight, FaSearch, FaUser, FaClock, FaTag, FaExclamationCircle, FaTimes } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Head from "next/head";
 import { KhmerTitle } from "@/components/shared/KhmerTitle";
@@ -37,18 +37,18 @@ import { KhmerTitle } from "@/components/shared/KhmerTitle";
 const MotionBox = motion(Box);
 const MotionFlex = motion(Flex);
 
-// Custom color palette - Military dark theme
+// Custom color palette
 const colors = {
-    darkBg: "#0A0D0B", // Very dark green/black
-    darkBgAlt: "#121A14", // Slightly lighter dark green
-    darkGreen: "#1A2C1F", // Dark green
-    midGreen: "#264D33", // Medium green
-    lightGreen: "#3E7E50", // Light green accent
-    gold: "#BFA46F", // Military gold
-    brightGold: "#D4B86A", // Brighter gold for highlights
-    mutedGold: "#8F7B4E", // Muted gold for secondary elements
-    textLight: "#E0E0E0", // Light text
-    textMuted: "#A0A0A0", // Muted text
+    darkBg: "#0A0D0B",
+    darkBgAlt: "#121A14",
+    darkGreen: "#1A2C1F",
+    midGreen: "#264D33",
+    lightGreen: "#3E7E50",
+    gold: "#BFA46F",
+    brightGold: "#D4B86A",
+    mutedGold: "#8F7B4E",
+    textLight: "#E0E0E0",
+    textMuted: "#A0A0A0",
 };
 
 type NewsItem = {
@@ -83,6 +83,7 @@ export default function NewsPage() {
     const [loading, setLoading] = useState(true);
     const [featured, setFeatured] = useState<NewsItem | null>(null);
     const [trending, setTrending] = useState<NewsItem[]>([]);
+    const [editorsPicks, setEditorsPicks] = useState<NewsItem[]>([]);
     const [categories, setCategories] = useState<string[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string>("");
     const [searchQuery, setSearchQuery] = useState<string>("");
@@ -98,14 +99,14 @@ export default function NewsPage() {
                 throw new Error(`Failed to fetch news: ${res.status}`);
             }
 
-            const data = await res.json();  
+            const data = await res.json();
 
             // Extract categories
-            const allCategories = [...new Set(data.map((item: NewsItem) => item.category).filter(Boolean))];
+            // const allCategories = [...new Set(data.map((item: NewsItem) => item.category).filter(Boolean))];
             // setCategories(allCategories);
 
-            // Set the first item as featured, next 3 as trending, and rest as regular news
             if (data.length > 0) {
+                // Set the first item as featured
                 setFeatured(data[0]);
 
                 // Set trending news (items 2-4)
@@ -113,8 +114,13 @@ export default function NewsPage() {
                     setTrending(data.slice(1, Math.min(4, data.length)));
                 }
 
-                // Regular news list (skip featured and trending)
-                setNewsList(data.slice(Math.min(4, data.length)));
+                // Select items 5-8 for editors picks if available
+                if (data.length > 4) {
+                    setEditorsPicks(data.slice(4, Math.min(8, data.length)));
+                }
+
+                // Regular news list (skip featured, trending, and editors picks)
+                setNewsList(data.slice(Math.min(8, data.length)));
             } else {
                 setNewsList([]);
             }
@@ -132,6 +138,9 @@ export default function NewsPage() {
     }, []);
 
     // Filter news based on search and category
+
+    const [showSearch, setShowSearch] = useState(false);
+
     const filteredNews = newsList.filter(item => {
         const matchesSearch = !searchQuery ||
             item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -141,8 +150,6 @@ export default function NewsPage() {
 
         return matchesSearch && matchesCategory;
     });
-
-    const columnCount = useBreakpointValue({ base: 1, md: 2, lg: 3 });
 
     if (loading) {
         return (
@@ -174,11 +181,11 @@ export default function NewsPage() {
     return (
         <>
             <Head>
-                <title>Ministry of National Defense</title>
+                <title>ព័តមានទូទៅ | Ministry of National Defense</title>
                 <meta name="description" content="Stay updated with the latest news from Ministry of National Defense" />
             </Head>
 
-            <Box bg={colors.darkBg} pt={8} pb={16} minH="100vh">
+            <Box bg={colors.darkBg} pt={2} pb={16} minH="100vh">
                 <Container maxW="container.xl">
                     {/* Header Section */}
                     <MotionBox
@@ -187,77 +194,70 @@ export default function NewsPage() {
                         transition={{ duration: 0.5 }}
                         mb={10}
                     >
-                        <KhmerTitle
-                            mb={4}
-                            size="lg"
-                            color={colors.gold}
-                            textAlign="center"
-                        >
-                            ព័តមានទូទៅ
-                        </KhmerTitle>
-                        <Box width="120px" height="2px" bg={colors.brightGold} mx="auto" mb={8} />
-
-                        {/* Search and Filter Section */}
-                        <Flex
-                            direction={{ base: "column", md: "row" }}
-                            justify="space-between"
-                            align={{ base: "stretch", md: "center" }}
+                        <Box
+                            display="grid"
+                            gridTemplateColumns={{ base: "1fr", md: "1fr 1fr 1fr" }}
+                            alignItems="center"
                             gap={4}
-                            p={5}
-                            borderRadius="lg"
-                            bg={colors.darkBgAlt}
-                            borderWidth="1px"
-                            borderColor={colors.midGreen}
                         >
-                            <InputGroup maxW={{ base: "100%", md: "400px" }}>
-                                <Input
-                                    placeholder="Search articles..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    bg={colors.darkGreen}
-                                    borderColor={colors.midGreen}
-                                    color={colors.textLight}
-                                    _placeholder={{ color: colors.textMuted }}
-                                    _hover={{ borderColor: colors.gold }}
-                                    _focus={{ borderColor: colors.brightGold, boxShadow: `0 0 0 1px ${colors.brightGold}` }}
-                                />
-                                <InputRightElement>
-                                    <Icon as={FaSearch} color={colors.gold} />
-                                </InputRightElement>
-                            </InputGroup>
+                            {/* Left Spacer */}
+                            <Box display={{ base: "none", md: "block" }} />
 
-                            <HStack spacing={2} overflow="auto" pb={2} flexWrap={{ base: "wrap", lg: "nowrap" }}>
-                                <Tag
-                                    size="md"
-                                    borderRadius="full"
-                                    cursor="pointer"
-                                    variant={!selectedCategory ? "solid" : "outline"}
-                                    bg={!selectedCategory ? colors.midGreen : "transparent"}
-                                    borderColor={colors.midGreen}
-                                    color={!selectedCategory ? colors.brightGold : colors.gold}
-                                    onClick={() => setSelectedCategory("")}
-                                    _hover={{ bg: colors.darkGreen }}
-                                >
-                                    <TagLabel>All</TagLabel>
-                                </Tag>
-                                {categories.map(category => (
-                                    <Tag
-                                        key={category}
-                                        size="md"
-                                        borderRadius="full"
+                            {/* Center Title */}
+                            <KhmerTitle
+                                size="md"
+                                color={colors.gold}
+                                textAlign="center"
+                                mb={{ base: 4, md: 0 }}
+                            >
+                                ព័តមានទូទៅ
+                                <Box
+                                    width="120px"
+                                    height="1px"
+                                    bg={colors.brightGold}
+                                    mx="auto"
+                                    mt={2}
+                                />
+                            </KhmerTitle>
+
+                            {/* Right Search Icon / Input */}
+                            <Flex justify="flex-end" align="center">
+                                {showSearch ? (
+                                    <InputGroup maxW="300px">
+                                        <Input
+                                            borderColor={colors.midGreen}
+                                            placeholder="Search articles..."
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            bg={colors.darkGreen}
+                                            color={colors.textLight}
+                                            _placeholder={{ color: colors.textMuted }}
+                                            _hover={{ borderColor: colors.gold, bg: colors.darkGreen }}
+                                            _focus={{
+                                                borderColor: colors.brightGold,
+                                                boxShadow: `0 0 0 1px ${colors.brightGold}`,
+                                            }}
+                                        />
+                                        <InputRightElement>
+                                            <Icon
+                                                as={FaTimes}
+                                                color={colors.gold}
+                                                cursor="pointer"
+                                                onClick={() => setShowSearch(false)}
+                                            />
+                                        </InputRightElement>
+                                    </InputGroup>
+                                ) : (
+                                    <Icon
+                                        as={FaSearch}
+                                        boxSize={6}
+                                        color={colors.gold}
                                         cursor="pointer"
-                                        variant={selectedCategory === category ? "solid" : "outline"}
-                                        bg={selectedCategory === category ? colors.midGreen : "transparent"}
-                                        borderColor={colors.midGreen}
-                                        color={selectedCategory === category ? colors.brightGold : colors.gold}
-                                        onClick={() => setSelectedCategory(category)}
-                                        _hover={{ bg: colors.darkGreen }}
-                                    >
-                                        <TagLabel>{category}</TagLabel>
-                                    </Tag>
-                                ))}
-                            </HStack>
-                        </Flex>
+                                        onClick={() => setShowSearch(true)}
+                                    />
+                                )}
+                            </Flex>
+                        </Box>
                     </MotionBox>
 
                     {/* Featured Article - Hero Section */}
@@ -321,7 +321,13 @@ export default function NewsPage() {
                                                     {featured.category}
                                                 </Badge>
                                             )}
-                                            <Heading size="xl" color="white" mb={3} textShadow="0 2px 4px rgba(0,0,0,0.7)">
+                                            <Heading
+                                                size="xl"
+                                                color="white"
+                                                mb={3}
+                                                textShadow="0 2px 4px rgba(0,0,0,0.7)"
+                                                fontFamily="Khmer Moul, sans-serif"
+                                            >
                                                 {featured.title}
                                             </Heading>
                                             <Text color="gray.300" noOfLines={2} fontSize="lg" mb={4} maxW="800px">
@@ -394,7 +400,12 @@ export default function NewsPage() {
                                                     {featured.category}
                                                 </Badge>
                                             )}
-                                            <Heading size="md" mb={2} color={colors.textLight}>
+                                            <Heading
+                                                size="md"
+                                                mb={2}
+                                                color={colors.textLight}
+                                                fontFamily="Khmer Moul, sans-serif"
+                                            >
                                                 {featured.title}
                                             </Heading>
                                             <Text color={colors.textMuted} noOfLines={2} fontSize="sm" mb={3}>
@@ -411,94 +422,283 @@ export default function NewsPage() {
                         </MotionBox>
                     )}
 
-                    {/* Trending News - 3 Column Row */}
+                    {/* Top Articles - Grid Layout (NY Times style) */}
                     {trending.length > 0 && (
                         <Box mb={12}>
                             <Flex align="center" mb={6}>
                                 <Box width="5px" height="24px" bg={colors.brightGold} mr={3} />
-                                <Heading size="md" color={colors.gold}>Trending Now</Heading>
+                                <Heading
+                                    size="md"
+                                    color={colors.gold}
+                                    fontFamily="Khmer Moul, sans-serif"
+                                >
+                                    ព័ត៌មានថ្មីៗ
+                                </Heading>
                             </Flex>
 
-                            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
-                                {trending.map((item, index) => (
+                            <Grid
+                                templateColumns={{ base: "1fr", lg: "1fr 1px 1fr" }}
+                                gap={{ base: 6, lg: 0 }}
+                            >
+                                {/* Left Column - Main Story */}
+                                <GridItem>
                                     <MotionBox
-                                        key={item._id}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.4, delay: index * 0.1 }}
-                                        as={Box}
-                                        borderWidth="1px"
-                                        borderRadius="lg"
-                                        overflow="hidden"
-                                        bg={colors.darkBgAlt}
-                                        borderColor={colors.midGreen}
-                                        _hover={{
-                                            transform: "translateY(-5px)",
-                                            boxShadow: "xl",
-                                            borderColor: colors.gold
-                                        }}
-                                        transitionProperty="all"
-                                        transitionDuration="0.3s"
+                                        transition={{ duration: 0.4 }}
                                     >
                                         <Link
                                             as={NextLink}
-                                            href={`/news/${item._id}`}
-                                            passHref
+                                            href={`/news/${trending[0]._id}`}
                                             _hover={{ textDecoration: "none" }}
+                                            passHref
                                         >
-                                            {item.imageUrl && (
-                                                <Box height="180px" overflow="hidden">
-                                                    <Image
-                                                        src={item.imageUrl || "/default-news.jpg"}
-                                                        alt={item.title}
-                                                        objectFit="cover"
-                                                        w="100%"
-                                                        h="100%"
-                                                        transition="transform 0.3s ease"
-                                                        _groupHover={{ transform: "scale(1.05)" }}
-                                                    />
-                                                </Box>
-                                            )}
-                                            <Box p={5}>
-                                                {item.category && (
+                                            <Box
+                                                pb={6}
+                                                borderBottomWidth={{ base: "1px", lg: "0" }}
+                                                borderColor={colors.midGreen}
+                                            >
+                                                {trending[0].imageUrl && (
+                                                    <Box mb={4} borderRadius="md" overflow="hidden">
+                                                        <Image
+                                                            src={trending[0].imageUrl}
+                                                            alt={trending[0].title}
+                                                            w="100%"
+                                                            h={{ base: "200px", md: "300px" }}
+                                                            objectFit="cover"
+                                                        />
+                                                    </Box>
+                                                )}
+
+                                                {trending[0].category && (
                                                     <Badge
+                                                        mb={2}
                                                         bg={colors.darkGreen}
                                                         color={colors.gold}
-                                                        mb={2}
                                                     >
-                                                        {item.category}
+                                                        {trending[0].category}
                                                     </Badge>
                                                 )}
-                                                <Heading size="md" mb={2} color={colors.textLight}>
-                                                    {item.title}
+
+                                                <Heading
+                                                    size="md"
+                                                    mb={3}
+                                                    color={colors.textLight}
+                                                    fontFamily="Khmer Moul, sans-serif"
+                                                >
+                                                    {trending[0].title}
                                                 </Heading>
-                                                <Text color={colors.textMuted} noOfLines={3} mb={4}>
-                                                    {item.body}
+
+                                                <Text color={colors.textMuted} mb={4} noOfLines={3}>
+                                                    {trending[0].body}
                                                 </Text>
-                                                <HStack justifyContent="space-between" color={colors.textMuted} fontSize="sm">
-                                                    <Flex align="center">
-                                                        <Icon as={FaUser} mr={1} />
-                                                        <Text>{item.author || "Staff"}</Text>
-                                                    </Flex>
-                                                    <Flex align="center">
-                                                        <Icon as={FaClock} mr={1} />
-                                                        <Text>{item.readTime || getReadTime(item.body)}</Text>
-                                                    </Flex>
+
+                                                <HStack color={colors.textMuted} fontSize="sm">
+                                                    <Text>{trending[0].author || "Staff"}</Text>
+                                                    <Text>•</Text>
+                                                    <Text>{formatDate(trending[0].createdAt)}</Text>
                                                 </HStack>
                                             </Box>
                                         </Link>
                                     </MotionBox>
-                                ))}
-                            </SimpleGrid>
+                                </GridItem>
+
+                                {/* Divider */}
+                                <GridItem
+                                    display={{ base: "none", lg: "block" }}
+                                >
+                                    <Box
+                                        h="100%"
+                                        bg={colors.midGreen}
+                                        opacity={0.3}
+                                    />
+                                </GridItem>
+
+                                {/* Right Column - List of Articles */}
+                                <GridItem>
+                                    <VStack
+                                        spacing={6}
+                                        align="stretch"
+                                        pl={{ base: 0, lg: 6 }}
+                                    >
+                                        {trending.slice(1).map((item, index) => (
+                                            <MotionBox
+                                                key={item._id}
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ duration: 0.4, delay: index * 0.1 }}
+                                            >
+                                                <Link
+                                                    as={NextLink}
+                                                    href={`/news/${item._id}`}
+                                                    _hover={{ textDecoration: "none" }}
+                                                    passHref
+                                                >
+                                                    <Flex
+                                                        gap={4}
+                                                        pb={6}
+                                                        borderBottomWidth={index < trending.length - 2 ? "1px" : "0"}
+                                                        borderColor={colors.midGreen}
+                                                    >
+                                                        {item.imageUrl && (
+                                                            <Box
+                                                                flexShrink={0}
+                                                                width={{ base: "100px", md: "120px" }}
+                                                                height={{ base: "80px", md: "90px" }}
+                                                                borderRadius="md"
+                                                                overflow="hidden"
+                                                            >
+                                                                <Image
+                                                                    src={item.imageUrl}
+                                                                    alt={item.title}
+                                                                    w="100%"
+                                                                    h="100%"
+                                                                    objectFit="cover"
+                                                                />
+                                                            </Box>
+                                                        )}
+
+                                                        <Box>
+                                                            {item.category && (
+                                                                <Badge
+                                                                    size="sm"
+                                                                    mb={1}
+                                                                    bg={colors.darkGreen}
+                                                                    color={colors.gold}
+                                                                >
+                                                                    {item.category}
+                                                                </Badge>
+                                                            )}
+
+                                                            <Heading
+                                                                size="sm"
+                                                                mb={2}
+                                                                color={colors.textLight}
+                                                                fontFamily="Khmer Moul, sans-serif"
+                                                            >
+                                                                {item.title}
+                                                            </Heading>
+
+                                                            <HStack fontSize="xs" color={colors.textMuted}>
+                                                                <Text>{formatDate(item.createdAt)}</Text>
+                                                                <Text>•</Text>
+                                                                <Text>{item.readTime || getReadTime(item.body)}</Text>
+                                                            </HStack>
+                                                        </Box>
+                                                    </Flex>
+                                                </Link>
+                                            </MotionBox>
+                                        ))}
+                                    </VStack>
+                                </GridItem>
+                            </Grid>
                         </Box>
                     )}
 
-                    {/* Latest News Grid */}
+                    {/* Editor's Picks - Magazine Style */}
+                    {editorsPicks.length > 0 && (
+                        <Box mb={12} py={8} bg={colors.darkBgAlt} borderRadius="lg">
+                            <Container maxW="container.xl">
+                                <HStack mb={6}>
+                                    <Box
+                                        bg={colors.brightGold}
+                                        w="30px"
+                                        h="30px"
+                                        borderRadius="full"
+                                        mr={3}
+                                        display="flex"
+                                        alignItems="center"
+                                        justifyContent="center"
+                                    >
+                                        <Icon as={FaTag} color={colors.darkGreen} />
+                                    </Box>
+                                    <Heading
+                                        size="md"
+                                        color={colors.brightGold}
+                                        fontFamily="Khmer Moul, sans-serif"
+                                    >
+                                        ជ្រើសរើសដោយអ្នកនិពន្ធ
+                                    </Heading>
+                                </HStack>
+
+                                <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
+                                    {editorsPicks.map((item, index) => (
+                                        <MotionBox
+                                            key={item._id}
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ duration: 0.4, delay: index * 0.1 }}
+                                        >
+                                            <LinkBox
+                                                bg={colors.darkGreen}
+                                                borderRadius="lg"
+                                                overflow="hidden"
+                                                h="100%"
+                                                _hover={{ transform: "translateY(-5px)" }}
+                                                transition="all 0.3s ease"
+                                            >
+                                                {item.imageUrl && (
+                                                    <Box h="160px">
+                                                        <Image
+                                                            src={item.imageUrl}
+                                                            alt={item.title}
+                                                            w="100%"
+                                                            h="100%"
+                                                            objectFit="cover"
+                                                        />
+                                                    </Box>
+                                                )}
+
+                                                <Box p={4}>
+                                                    <LinkOverlay
+                                                        as={NextLink}
+                                                        href={`/news/${item._id}`}
+                                                    >
+                                                        <Heading
+                                                            size="sm"
+                                                            mb={2}
+                                                            noOfLines={2}
+                                                            color={colors.textLight}
+                                                            fontFamily="Khmer Moul, sans-serif"
+                                                        >
+                                                            {item.title}
+                                                        </Heading>
+                                                    </LinkOverlay>
+
+                                                    <Text
+                                                        fontSize="sm"
+                                                        color={colors.textMuted}
+                                                        noOfLines={2}
+                                                        mb={3}
+                                                    >
+                                                        {item.body}
+                                                    </Text>
+
+                                                    <HStack fontSize="xs" color={colors.textMuted}>
+                                                        <Icon as={FaCalendarAlt} boxSize="10px" />
+                                                        <Text>{formatDate(item.createdAt)}</Text>
+                                                    </HStack>
+                                                </Box>
+                                            </LinkBox>
+                                        </MotionBox>
+                                    ))}
+                                </SimpleGrid>
+                            </Container>
+                        </Box>
+                    )}
+
+                    {/* Latest News - Mixed Layout */}
                     <Box mb={10}>
                         <Flex align="center" justify="space-between" mb={6}>
                             <Flex align="center">
                                 <Box width="5px" height="24px" bg={colors.brightGold} mr={3} />
-                                <Heading size="md" color={colors.gold}>Latest News</Heading>
+                                <Heading
+                                    size="md"
+                                    color={colors.gold}
+                                    fontFamily="Khmer Moul, sans-serif"
+                                >
+                                    ព័ត៌មានថ្មីបំផុត
+                                </Heading>
                             </Flex>
                             {selectedCategory && (
                                 <Badge colorScheme="green" fontSize="md" bg={colors.midGreen} color={colors.brightGold}>
@@ -535,8 +735,292 @@ export default function NewsPage() {
                                 )}
                             </Box>
                         ) : (
-                            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-                                {filteredNews.map((item, index) => (
+                            <Grid
+                                templateColumns={{ base: "1fr", lg: "2fr 1fr" }}
+                                gap={8}
+                            >
+                                {/* Main column - Featured items */}
+                                <GridItem>
+                                    <VStack spacing={8} align="stretch">
+                                        {filteredNews.slice(0, 4).map((item, index) => (
+                                            <MotionBox
+                                                key={item._id}
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ duration: 0.3, delay: index * 0.05 }}
+                                            >
+                                                <Link
+                                                    as={NextLink}
+                                                    href={`/news/${item._id}`}
+                                                    passHref
+                                                    _hover={{ textDecoration: "none" }}
+                                                >
+                                                    <Flex
+                                                        direction={{ base: "column", sm: "row" }}
+                                                        bg={colors.darkBgAlt}
+                                                        borderRadius="lg"
+                                                        overflow="hidden"
+                                                        borderWidth="1px"
+                                                        borderColor={colors.midGreen}
+                                                        _hover={{
+                                                            borderColor: colors.gold,
+                                                            transform: "translateY(-3px)",
+                                                            boxShadow: "md"
+                                                        }}
+                                                        transition="all 0.3s ease"
+                                                    >
+                                                        {item.imageUrl && (
+                                                            <Box
+                                                                w={{ base: "100%", sm: "40%" }}
+                                                                h={{ base: "180px", sm: "auto" }}
+                                                            >
+                                                                <Image
+                                                                    src={item.imageUrl}
+                                                                    alt={item.title}
+                                                                    objectFit="cover"
+                                                                    w="100%"
+                                                                    h="100%"
+                                                                />
+                                                            </Box>
+                                                        )}
+                                                        <Box
+                                                            p={5}
+                                                            flex="1"
+                                                        >
+                                                            <Flex
+                                                                justify="space-between"
+                                                                mb={2}
+                                                                align="center"
+                                                            >
+                                                                {item.category && (
+                                                                    <Badge
+                                                                        bg={colors.darkGreen}
+                                                                        color={colors.gold}
+                                                                    >
+                                                                        {item.category}
+                                                                    </Badge>
+                                                                )}
+                                                                <Text
+                                                                    fontSize="xs"
+                                                                    color={colors.textMuted}
+                                                                >
+                                                                    {formatDate(item.createdAt)}
+                                                                </Text>
+                                                            </Flex>
+
+                                                            <Heading
+                                                                size="md"
+                                                                mb={3}
+                                                                color={colors.textLight}
+                                                                fontFamily="Khmer Moul, sans-serif"
+                                                            >
+                                                                {item.title}
+                                                            </Heading>
+
+                                                            <Text
+                                                                color={colors.textMuted}
+                                                                noOfLines={2}
+                                                                mb={4}
+                                                            >
+                                                                {item.body}
+                                                            </Text>
+
+                                                            <HStack>
+                                                                <Flex align="center">
+                                                                    <Avatar
+                                                                        size="xs"
+                                                                        mr={2}
+                                                                        name={item.author || "Staff"}
+                                                                    />
+                                                                    <Text
+                                                                        fontSize="sm"
+                                                                        color={colors.textMuted}
+                                                                    >
+                                                                        {item.author || "Staff"}
+                                                                    </Text>
+                                                                </Flex>
+                                                                <Text color={colors.textMuted}>•</Text>
+                                                                <Flex align="center">
+                                                                    <Icon as={FaClock} boxSize="10px" mr={1} />
+                                                                    <Text
+                                                                        fontSize="sm"
+                                                                        color={colors.textMuted}
+                                                                    >
+                                                                        {item.readTime || getReadTime(item.body)}
+                                                                    </Text>
+                                                                </Flex>
+                                                            </HStack>
+                                                        </Box>
+                                                    </Flex>
+                                                </Link>
+                                            </MotionBox>
+                                        ))}
+                                    </VStack>
+                                </GridItem>
+
+                                {/* Side column - Compact list */}
+                                <GridItem display={{ base: "none", lg: "block" }}>
+                                    <Box
+                                        bg={colors.darkBgAlt}
+                                        p={5}
+                                        borderRadius="lg"
+                                        borderWidth="1px"
+                                        borderColor={colors.midGreen}
+                                    >
+                                        <Heading
+                                            size="sm"
+                                            mb={4}
+                                            pb={2}
+                                            borderBottomWidth="2px"
+                                            borderColor={colors.gold}
+                                            color={colors.brightGold}
+                                            fontFamily="Khmer Moul, sans-serif"
+                                        >
+                                            ព័ត៌មានជាដំណឹង
+                                        </Heading>
+
+                                        <VStack spacing={4} align="stretch">
+                                            {filteredNews.slice(4, Math.min(filteredNews.length, 10)).map((item, index) => (
+                                                <MotionBox
+                                                    key={item._id}
+                                                    initial={{ opacity: 0, x: 20 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                                                >
+                                                    <Link
+                                                        as={NextLink}
+                                                        href={`/news/${item._id}`}
+                                                        _hover={{ textDecoration: "none" }}
+                                                    >
+                                                        <Flex
+                                                            pb={3}
+                                                            borderBottomWidth={index < Math.min(filteredNews.length, 10) - 5 - 1 ? "1px" : "0"}
+                                                            borderColor={colors.midGreen}
+                                                            gap={3}
+                                                            _hover={{ color: colors.gold }}
+                                                        >
+                                                            <Text color={colors.brightGold} fontWeight="bold">
+                                                                {index + 1}.
+                                                            </Text>
+                                                            <Box>
+                                                                <Heading
+                                                                    size="xs"
+                                                                    mb={1}
+                                                                    color={colors.textLight}
+                                                                    fontFamily="Khmer Moul, sans-serif"
+                                                                    _groupHover={{ color: colors.gold }}
+                                                                >
+                                                                    {item.title}
+                                                                </Heading>
+                                                                <HStack fontSize="xs" color={colors.textMuted} spacing={2}>
+                                                                    <Text>{formatDate(item.createdAt)}</Text>
+                                                                    {item.category && (
+                                                                        <>
+                                                                            <Text>•</Text>
+                                                                            <Text>{item.category}</Text>
+                                                                        </>
+                                                                    )}
+                                                                </HStack>
+                                                            </Box>
+                                                        </Flex>
+                                                    </Link>
+                                                </MotionBox>
+                                            ))}
+                                        </VStack>
+
+                                        {filteredNews.length > 10 && (
+                                            <Button
+                                                mt={6}
+                                                size="sm"
+                                                width="100%"
+                                                variant="outline"
+                                                borderColor={colors.midGreen}
+                                                color={colors.gold}
+                                                _hover={{ bg: colors.darkGreen }}
+                                                rightIcon={<FaArrowRight />}
+                                            >
+                                                View More News
+                                            </Button>
+                                        )}
+                                    </Box>
+
+                                    {/* Newsletter Signup */}
+                                    <Box
+                                        mt={6}
+                                        p={5}
+                                        bg={colors.darkGreen}
+                                        borderRadius="lg"
+                                        borderWidth="1px"
+                                        borderColor={colors.midGreen}
+                                        position="relative"
+                                        overflow="hidden"
+                                    >
+                                        <Box
+                                            position="absolute"
+                                            top="-20px"
+                                            right="-20px"
+                                            bg={colors.gold}
+                                            opacity={0.1}
+                                            w="100px"
+                                            h="100px"
+                                            borderRadius="full"
+                                        />
+                                        <Heading
+                                            size="sm"
+                                            mb={3}
+                                            color={colors.brightGold}
+                                            fontFamily="Khmer Moul, sans-serif"
+                                        >
+                                            ព័ត៌មានប្រចាំខែ
+                                        </Heading>
+                                        <Text
+                                            fontSize="sm"
+                                            mb={4}
+                                            color={colors.textLight}
+                                        >
+                                            ចុះឈ្មោះដើម្បីទទួលបានព័ត៌មានថ្មីៗពីក្រសួងការពារជាតិ
+                                        </Text>
+                                        <Input
+                                            placeholder="អ៊ីមែល"
+                                            bg={colors.darkBgAlt}
+                                            color={colors.textLight}
+                                            borderColor={colors.midGreen}
+                                            mb={3}
+                                            _placeholder={{ color: colors.textMuted }}
+                                            _hover={{ borderColor: colors.gold }}
+                                            _focus={{ borderColor: colors.brightGold }}
+                                        />
+                                        <Button
+                                            width="100%"
+                                            colorScheme="green"
+                                            bg={colors.gold}
+                                            color={colors.darkGreen}
+                                            _hover={{ bg: colors.brightGold }}
+                                        >
+                                            ចុះឈ្មោះ
+                                        </Button>
+                                    </Box>
+                                </GridItem>
+                            </Grid>
+                        )}
+                    </Box>
+
+                    {/* More News - Grid Layout */}
+                    {filteredNews.length > 4 && (
+                        <Box display={{ base: "block", lg: "none" }} mt={10}>
+                            <Flex align="center" mb={6}>
+                                <Box width="5px" height="24px" bg={colors.brightGold} mr={3} />
+                                <Heading
+                                    size="md"
+                                    color={colors.gold}
+                                    fontFamily="Khmer Moul, sans-serif"
+                                >
+                                    ព័ត៌មានផ្សេងទៀត
+                                </Heading>
+                            </Flex>
+
+                            <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={6}>
+                                {filteredNews.slice(4).map((item, index) => (
                                     <MotionBox
                                         key={item._id}
                                         initial={{ opacity: 0, y: 20 }}
@@ -550,7 +1034,7 @@ export default function NewsPage() {
                                             _hover={{ textDecoration: "none" }}
                                         >
                                             <Flex
-                                                direction={{ base: "column", sm: "row", md: "column" }}
+                                                direction="column"
                                                 bg={colors.darkBgAlt}
                                                 borderRadius="lg"
                                                 overflow="hidden"
@@ -565,10 +1049,7 @@ export default function NewsPage() {
                                                 transition="all 0.3s ease"
                                             >
                                                 {item.imageUrl && (
-                                                    <Box
-                                                        w={{ base: "100%", sm: "40%", md: "100%" }}
-                                                        h={{ base: "180px", sm: "auto", md: "180px" }}
-                                                    >
+                                                    <Box h="160px">
                                                         <Image
                                                             src={item.imageUrl}
                                                             alt={item.title}
@@ -595,7 +1076,12 @@ export default function NewsPage() {
                                                                 {item.category}
                                                             </Badge>
                                                         )}
-                                                        <Heading size="sm" mb={2} color={colors.textLight}>
+                                                        <Heading
+                                                            size="sm"
+                                                            mb={2}
+                                                            color={colors.textLight}
+                                                            fontFamily="Khmer Moul, sans-serif"
+                                                        >
                                                             {item.title}
                                                         </Heading>
                                                         <Text fontSize="sm" color={colors.textMuted} noOfLines={2} mb={3}>
@@ -616,8 +1102,8 @@ export default function NewsPage() {
                                     </MotionBox>
                                 ))}
                             </SimpleGrid>
-                        )}
-                    </Box>
+                        </Box>
+                    )}
                 </Container>
             </Box>
         </>
