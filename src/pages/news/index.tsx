@@ -322,7 +322,7 @@ export default function NewsPage() {
                                                 </Badge>
                                             )}
                                             <Text
-                                                size="lg"
+                                                fontSize={{ base: "md", md: "2xl" }}
                                                 color="white"
                                                 mb={3}
                                                 textShadow="0 2px 4px rgba(0,0,0,0.7)"
@@ -331,8 +331,15 @@ export default function NewsPage() {
                                             >
                                                 {featured.title}
                                             </Text>
-                                            <Text color="gray.300" noOfLines={2} fontSize="sm" mb={4} maxW="800px">
-                                                {featured.body}
+                                            <Text
+                                              color="gray.300"
+                                              noOfLines={2}
+                                              fontSize="sm"
+                                              mb={4}
+                                              fontFamily="'Kantumruy Pro', sans-serif"
+                                              maxW="800px"
+                                            >
+                                              {featured.body}
                                             </Text>
                                             <HStack spacing={6} color={colors.textLight} fontSize="sm">
                                                 <Flex align="center">
