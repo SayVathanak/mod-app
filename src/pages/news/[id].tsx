@@ -16,14 +16,18 @@ import {
     Divider,
     Avatar,
     useToast,
-    Spinner
+    Spinner,
+    Grid,
+    GridItem,
+    VStack
 } from "@chakra-ui/react";
 import { FaCalendarAlt, FaArrowLeft, FaShare, FaBookmark } from "react-icons/fa";
 import NextLink from "next/link";
 import { motion } from "framer-motion";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { KhmerTitle } from "@/components/shared/KhmerTitle";
+import { NewsGrid } from "@/components/NewsGrid";
+import { colors } from "@/theme/colors";
 
 const MotionBox = motion(Box);
 
@@ -40,10 +44,11 @@ type NewsItem = {
 
 type Props = {
     news: NewsItem | null;
+    relatedNews?: NewsItem[];
     error?: string;
 };
 
-export default function NewsDetailPage({ news: initialNews, error }: Props) {
+export default function NewsDetailPage({ news: initialNews, relatedNews = [], error }: Props) {
     const router = useRouter();
     const toast = useToast();
     const [news, setNews] = useState(initialNews);
@@ -88,9 +93,16 @@ export default function NewsDetailPage({ news: initialNews, error }: Props) {
         fetchNews();
     }, [id, news, error, toast]);
 
+    const getReadTime = (text: string) => {
+        const wordsPerMinute = 200;
+        const wordCount = text.trim().split(/\s+/).length;
+        const minutes = Math.ceil(wordCount / wordsPerMinute);
+        return `${minutes} min read`;
+    };
+
     if (isLoading) {
         return (
-            <Container maxW="container.md" py={16} centerContent>
+            <Container maxW="container.xl" py={16} centerContent>
                 <Spinner size="xl" thickness="4px" speed="0.65s" />
                 <Text mt={4}>Loading article...</Text>
             </Container>
@@ -99,7 +111,7 @@ export default function NewsDetailPage({ news: initialNews, error }: Props) {
 
     if (!news) {
         return (
-            <Container maxW="container.md" py={16}>
+            <Container maxW="container.xl">
                 <Box textAlign="center">
                     <Heading mb={4} color="red.500">Article Not Found</Heading>
                     <Text mb={8}>The news article you're looking for could not be found.</Text>
@@ -135,140 +147,273 @@ export default function NewsDetailPage({ news: initialNews, error }: Props) {
                 {news.imageUrl && <meta property="og:image" content={news.imageUrl} />}
             </Head>
 
-            <Container maxW="container.md" py={8}>
-                <MotionBox
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
+            <Container maxW="container.xl" px={{ base: 4, md: 8 }}>
+                <Grid
+                    templateColumns={{ base: "1fr", lg: "3fr 2fr" }}
+                    gap={{ base: 0, lg: 10 }}
                 >
-                    <Link as={NextLink} href="/news">
-                        <Button
-                            variant="ghost"
-                            leftIcon={<FaArrowLeft />}
-                            mb={6}
-                            color="brand.500"
-                            _hover={{ bg: "dark.800" }}
+                    {/* Main Content Column */}
+                    <GridItem>
+                        <MotionBox
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5 }}
+                            maxW={{ base: "100%", lg: "100%" }}
                         >
-                            Back to News
-                        </Button>
-                    </Link>
+                            <Link as={NextLink} href="/news">
+                                <Button
+                                    variant="ghost"
+                                    leftIcon={<FaArrowLeft />}
+                                    mb={6}
+                                    color={colors.gold}
+                                    _hover={{ bg: colors.darkGreen }}
+                                    size={{ base: "sm", md: "md" }}
+                                >
+                                    Back to News
+                                </Button>
+                            </Link>
 
-                    {news.category && (
-                        <Badge colorScheme="green" mb={4} fontSize="sm" px={2} py={1}>
-                            {news.category}
-                        </Badge>
-                    )}
+                            {news.category && (
+                                <Badge
+                                    bg={colors.darkGreen}
+                                    color={colors.brightGold}
+                                    mb={4}
+                                    fontSize={{ base: "xs", md: "sm" }}
+                                    px={2}
+                                    py={1}
+                                >
+                                    {news.category}
+                                </Badge>
+                            )}
 
-                    <KhmerTitle
-                        mb={6}
-                        fontSize={["md", "lg", "xl"]}
-                        lineHeight="1.5"
-                    >
-                        {news.title}
-                    </KhmerTitle>
+                            <Heading
+                                as="h1"
+                                mb={6}
+                                fontSize={{ base: "md", md: "xl"}}
+                                lineHeight="1.2"
+                                fontFamily={"Khmer Moul"}
+                                color={colors.gold}
+                            >
+                                {news.title}
+                            </Heading>
 
-                    <Flex
-                        direction={["column", "row"]}
-                        justify="space-between"
-                        mb={6}
-                        align={["flex-start", "center"]}
-                        bg="dark.800"
-                        p={4}
-                        borderRadius="md"
-                    >
-                        <HStack spacing={4}>
-                            <Avatar
-                                size="sm"
-                                name={news.author || "Author"}
-                                bg="brand.500"
-                            />
-                            <Box>
-                                <Text fontSize="sm" fontWeight="bold">
-                                    {news.author || "Say Vathanak"}
-                                </Text>
-                                <HStack fontSize="xs" color="gray.500">
-                                    <Icon as={FaCalendarAlt} />
-                                    <Text>{formattedDate}</Text>
-                                    {news.readTime && (
-                                        <>
-                                            <Text>•</Text>
-                                            <Text>{news.readTime}</Text>
-                                        </>
-                                    )}
-                                </HStack>
+                            {news.imageUrl && (
+                                <Box
+                                    mb={8}
+                                    borderRadius="lg"
+                                    overflow="hidden"
+                                    boxShadow="dark-lg"
+                                    position="relative"
+                                    minH={{ base: "200px", md: "400px" }}
+                                >
+                                    <Image
+                                        src={news.imageUrl}
+                                        alt={news.title}
+                                        w="100%"
+                                        h="auto"
+                                        objectFit="cover"
+                                        fallback={
+                                            <Flex
+                                                h={{ base: "200px", md: "400px" }}
+                                                bg={colors.darkBg}
+                                                align="center"
+                                                justify="center"
+                                            >
+                                                <Text>Image not available</Text>
+                                            </Flex>
+                                        }
+                                    />
+                                </Box>
+                            )}
+
+                            <Box
+                                fontSize={{ base: "xs", md: "sm" }}
+                                color={colors.textLight}
+                                whiteSpace="pre-wrap"
+                                lineHeight="1.8"
+                                className="article-content"
+                            >
+                                {news.body.split('\n').map((paragraph, idx) => (
+                                    <Text key={idx} mb={4} fontFamily="'Kantumruy Pro', sans-serif">
+                                        {paragraph}
+                                    </Text>
+                                ))}
                             </Box>
-                        </HStack>
+                            <Flex
+                                flexWrap="wrap"
+                                justify="space-between"
+                                mb={{ base: 4, md: 6 }}
+                                align="center"
+                                bg={colors.darkBgAlt}
+                                p={{ base: 3, md: 4 }}
+                                borderRadius="md"
+                                width="100%"
+                                gap={3}
+                            >
+                                <HStack spacing={3} width={{ base: "auto", sm: "auto" }}>
+                                    <Avatar
+                                        size={{ base: "xs", md: "sm" }}
+                                        name={news.author || "Author"}
+                                        bg={colors.midGreen}
+                                    />
+                                    <Box>
+                                        <Text
+                                            fontSize={{ base: "xs", md: "xs" }}
+                                            fontFamily="'Kantumruy Pro', sans-serif"
+                                            color={colors.textLight}
+                                        >
+                                            {news.author || "Say Vathanak"}
+                                        </Text>
+                                        <HStack fontSize={{ base: "2xs", md: "xs" }} color={colors.textMuted} spacing={1}>
+                                            <Icon as={FaCalendarAlt} boxSize={{ base: "8px", md: "10px" }} />
+                                            <Text fontFamily="'Kantumruy Pro', sans-serif">{formattedDate}</Text>
+                                            {news.readTime && (
+                                                <>
+                                                    <Text>•</Text>
+                                                    <Text fontFamily="'Kantumruy Pro', sans-serif">{news.readTime}</Text>
+                                                </>
+                                            )}
+                                        </HStack>
+                                    </Box>
+                                </HStack>
 
-                        <HStack mt={[4, 0]} spacing={4}>
-                            <Icon
-                                as={FaShare}
-                                color="gray.500"
-                                cursor="pointer"
-                                _hover={{ color: "brand.500" }}
-                            />
-                            <Icon
-                                as={FaBookmark}
-                                color="gray.500"
-                                cursor="pointer"
-                                _hover={{ color: "brand.500" }}
-                            />
-                        </HStack>
-                    </Flex>
+                                <HStack
+                                    spacing={3}
+                                    width={{ base: "auto", sm: "auto" }}
+                                    justify="flex-end"
+                                >
+                                    <Icon
+                                        as={FaShare}
+                                        color={colors.textMuted}
+                                        cursor="pointer"
+                                        _hover={{ color: colors.brightGold }}
+                                        boxSize={{ base: "14px", md: "16px" }}
+                                    />
+                                    <Icon
+                                        as={FaBookmark}
+                                        color={colors.textMuted}
+                                        cursor="pointer"
+                                        _hover={{ color: colors.brightGold }}
+                                        boxSize={{ base: "14px", md: "16px" }}
+                                    />
+                                </HStack>
+                            </Flex>
 
-                    {news.imageUrl && (
-                        <Box
-                            mb={8}
-                            borderRadius="lg"
-                            overflow="hidden"
-                            boxShadow="dark-lg"
-                            position="relative"
-                            minH="300px"
+                            <Divider my={10} opacity={0.3} />
+
+                            <Flex justify="space-between" align="center" mb={8}>
+                                <Button
+                                    variant="outline"
+                                    isDisabled
+                                    borderColor={colors.midGreen}
+                                    color={colors.gold}
+                                    _hover={{ bg: colors.darkGreen }}
+                                >
+                                    Previous Article
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    isDisabled
+                                    borderColor={colors.midGreen}
+                                    color={colors.gold}
+                                    _hover={{ bg: colors.darkGreen }}
+                                >
+                                    Next Article
+                                </Button>
+                            </Flex>
+
+                            {/* Mobile-only Related News Section */}
+                            <Box display={{ base: "block", lg: "none" }} mt={10}>
+                                <Text
+                                    as="h3"
+                                    size="md"
+                                    mb={6}
+                                    color={colors.gold}
+                                    fontFamily="'Kantumruy Pro', sans-serif"
+                                >
+                                    ព័តមានទាក់ទង
+                                </Text>
+                                <NewsGrid
+                                    newsItems={relatedNews}
+                                    getReadTime={getReadTime}
+                                    limit={4}
+                                />
+                            </Box>
+                        </MotionBox>
+                    </GridItem>
+
+                    {/* Right Sidebar - Related News */}
+                    <GridItem display={{ base: "none", lg: "block" }}>
+                        <MotionBox
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                            position="sticky"
+                            top="100px"
                         >
-                            <Image
-                                src={news.imageUrl}
-                                alt={news.title}
-                                w="100%"
-                                h="auto"
-                                objectFit="cover"
-                                fallback={
-                                    <Flex
-                                        h="300px"
-                                        bg="dark.700"
-                                        align="center"
-                                        justify="center"
+                            <VStack align="stretch" spacing={6}>
+                                <Box>
+                                    <Text
+                                        as="h3"
+                                        size="md"
+                                        fontSize={{ base: "md", md: "xl" }}
+                                        fontWeight={"medium"}
+                                        mb={4}
+                                        pb={2}
+                                        borderBottom="2px solid"
+                                        borderColor={colors.brightGold}
+                                        color={colors.gold}
+                                        fontFamily="'Kantumruy Pro', sans-serif"
                                     >
-                                        <Text>Image not available</Text>
-                                    </Flex>
-                                }
-                            />
-                        </Box>
-                    )}
+                                        ព័តមានទាក់ទង
+                                    </Text>
+                                    <NewsGrid
+                                        newsItems={relatedNews}
+                                        getReadTime={getReadTime}
+                                        limit={5}
+                                    />
+                                </Box>
 
-                    <Box
-                        fontSize={["md", "lg"]}
-                        color="gray.200"
-                        whiteSpace="pre-wrap"
-                        lineHeight="1.8"
-                        fontFamily="'Kantumruy Pro', sans-serif"
-                    >
-                        {news.body.split('\n').map((paragraph, idx) => (
-                            <Text key={idx} mb={4}>
-                                {paragraph}
-                            </Text>
-                        ))}
-                    </Box>
-
-                    <Divider my={10} opacity={0.3} />
-
-                    <Flex justify="space-between" align="center">
-                        <Button variant="outline" isDisabled>
-                            Previous Article
-                        </Button>
-                        <Button variant="outline" isDisabled>
-                            Next Article
-                        </Button>
-                    </Flex>
-                </MotionBox>
+                                <Box
+                                    p={4}
+                                    bg={colors.darkBgAlt}
+                                    borderRadius="md"
+                                    borderLeft="4px solid"
+                                    borderColor={colors.brightGold}
+                                >
+                                    <Heading
+                                        as="h4"
+                                        size="sm"
+                                        mb={3}
+                                        color={colors.gold}
+                                        fontFamily="'Kantumruy Pro', sans-serif"
+                                    >
+                                        Defense Newsletter
+                                    </Heading>
+                                    <Text
+                                        fontSize="sm"
+                                        mb={4}
+                                        color={colors.textMuted}
+                                        fontFamily="'Kantumruy Pro', sans-serif"
+                                    >
+                                        Stay updated with the latest news from the Ministry of National Defense
+                                    </Text>
+                                    <Button
+                                        size="sm"
+                                        width="100%"
+                                        colorScheme="green"
+                                        bg={colors.midGreen}
+                                        _hover={{ bg: colors.darkGreen }}
+                                        color={colors.brightGold}
+                                        fontFamily="'Kantumruy Pro', sans-serif"
+                                    >
+                                        Subscribe
+                                    </Button>
+                                </Box>
+                            </VStack>
+                        </MotionBox>
+                    </GridItem>
+                </Grid>
             </Container>
         </>
     );
@@ -281,7 +426,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
         // Use absolute URL that works in any environment
         const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
         const host = context.req.headers.host || 'localhost:3000';
-        const url = `${protocol}://${host}/api/news/${id}`;
+        const baseUrl = `${protocol}://${host}`;
+        const url = `${baseUrl}/api/news/${id}`;
 
         console.log(`Fetching news from: ${url}`);
 
@@ -302,9 +448,21 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
             };
         }
 
+        // Fetch related news (you might want to implement an actual related news API)
+        let relatedNews = [];
+        try {
+            const relatedRes = await fetch(`${baseUrl}/api/news?limit=5&exclude=${id}`);
+            if (relatedRes.ok) {
+                relatedNews = await relatedRes.json();
+            }
+        } catch (error) {
+            console.error("Error fetching related news:", error);
+        }
+
         return {
             props: {
                 news,
+                relatedNews,
                 // Add readTime if not present
                 ...(!news.readTime && {
                     readTime: calculateReadTime(news.body)
@@ -316,6 +474,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
         return {
             props: {
                 news: null,
+                relatedNews: [],
                 error: error instanceof Error ? error.message : "Failed to load article"
             }
         };
