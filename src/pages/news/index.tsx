@@ -699,7 +699,7 @@ fontFamily="'Kantumruy Pro', sans-serif"
                             <Flex align="center">
                                 <Box width="5px" height="24px" bg={colors.brightGold} mr={3} />
                                 <KhmerTitle
-                                    //size="md"
+                                    size="sm"
                                     color={colors.gold}
                                     //fontFamily="Khmer Moul, sans-serif"
                                 >
