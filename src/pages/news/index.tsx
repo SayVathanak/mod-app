@@ -208,7 +208,7 @@ export default function NewsPage() {
                                 size="md"
                                 color={colors.gold}
                                 textAlign="center"
-                                mb={{ base: 4, md: 0 }}
+                                mb={{ base: 0, md: 0 }}
                             >
                                 ព័តមានទូទៅ
                                 <Box
@@ -221,7 +221,7 @@ export default function NewsPage() {
                             </KhmerTitle>
 
                             {/* Right Search Icon / Input */}
-                            <Flex justify="flex-end" align="center">
+                            <Flex justify="flex-end" align="centre" display={{ base: "none", md: "block" }}>
                                 {showSearch ? (
                                     <InputGroup maxW="300px">
                                         <Input
