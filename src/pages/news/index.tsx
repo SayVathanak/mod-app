@@ -205,7 +205,7 @@ export default function NewsPage() {
 
                             {/* Center Title */}
                             <KhmerTitle
-                                size="md"
+                                size="sm"
                                 color={colors.gold}
                                 textAlign="center"
                                 mb={{ base: 0, md: 0 }}
