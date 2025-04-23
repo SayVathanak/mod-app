@@ -28,6 +28,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { NewsGrid } from "@/components/NewsGrid";
 import { colors } from "@/theme/colors";
+import { KhmerTitle } from "@/components/shared/KhmerTitle";
 
 const MotionBox = motion(Box);
 
@@ -186,16 +187,17 @@ export default function NewsDetailPage({ news: initialNews, relatedNews = [], er
                                 </Badge>
                             )}
 
-                            <Heading
-                                as="h1"
-                                mb={6}
-                                fontSize={{ base: "md", md: "xl"}}
+                            <KhmerTitle
+                                // as="h1"
+                                // mb={6}
+                                // fontSize={{ base: "md", md: "xl"}}
                                 lineHeight="1.2"
-                                fontFamily={"Khmer Moul"}
+                                // fontFamily={"Khmer Moul"}
                                 color={colors.gold}
+                                mb={6}
                             >
                                 {news.title}
-                            </Heading>
+                            </KhmerTitle>
 
                             {news.imageUrl && (
                                 <Box
@@ -227,7 +229,7 @@ export default function NewsDetailPage({ news: initialNews, relatedNews = [], er
                             )}
 
                             <Box
-                                fontSize={{ base: "xs", md: "sm" }}
+                                fontSize={{ base: "sm", md: "sm" }}
                                 color={colors.textLight}
                                 whiteSpace="pre-wrap"
                                 lineHeight="1.8"
