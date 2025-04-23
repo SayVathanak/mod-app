@@ -402,7 +402,7 @@ export default function NewsPage() {
                                                 </Badge>
                                             )}
                                             <Text
-                                                size="lg"
+                                                size="xl"
                                                 mb={2}
                                                 color={colors.textLight}
                                                 //fontFamily="Khmer Moul, sans-serif"
@@ -573,7 +573,7 @@ fontFamily="'Kantumruy Pro', sans-serif"
                                                                 </Badge>
                                                             )}
 
-                                                            <Heading
+                                                            <Text
                                                                 size="sm"
                                                                 mb={2}
                                                                 color={colors.textLight}
@@ -581,7 +581,7 @@ fontFamily="'Kantumruy Pro', sans-serif"
                                                                 //fontFamily="Khmer Moul, sans-serif"
                                                             >
                                                                 {item.title}
-                                                            </Heading>
+                                                            </Text>
 
                                                             <HStack fontSize="xs" color={colors.textMuted}>
                                                                 <Text>{formatDate(item.createdAt)}</Text>
@@ -616,13 +616,13 @@ fontFamily="'Kantumruy Pro', sans-serif"
                                     >
                                         <Icon as={FaTag} color={colors.darkGreen} />
                                     </Box>
-                                    <Heading
-                                        size="md"
+                                    <KhmerTitle
+                                        //size="md"
                                         color={colors.brightGold}
-                                        fontFamily="Khmer Moul, sans-serif"
+                                        //fontFamily="Khmer Moul, sans-serif"
                                     >
                                         ជ្រើសរើសដោយអ្នកនិពន្ធ
-                                    </Heading>
+                                    </KhmerTitle>
                                 </HStack>
 
                                 <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
@@ -698,13 +698,13 @@ fontFamily="'Kantumruy Pro', sans-serif"
                         <Flex align="center" justify="space-between" mb={6}>
                             <Flex align="center">
                                 <Box width="5px" height="24px" bg={colors.brightGold} mr={3} />
-                                <Heading
-                                    size="md"
+                                <KhmerTitle
+                                    //size="md"
                                     color={colors.gold}
-                                    fontFamily="Khmer Moul, sans-serif"
+                                    //fontFamily="Khmer Moul, sans-serif"
                                 >
                                     ព័ត៌មានថ្មីបំផុត
-                                </Heading>
+                                </KhmerTitle>
                             </Flex>
                             {selectedCategory && (
                                 <Badge colorScheme="green" fontSize="md" bg={colors.midGreen} color={colors.brightGold}>
