@@ -428,7 +428,7 @@ export default function NewsPage() {
                             <Flex align="center" mb={6}>
                                 <Box width="5px" height="24px" bg={colors.brightGold} mr={3} />
                                 <KhmerTitle
-                                    size="md"
+                                    size="sm"
                                     color={colors.gold}
                                     //fontFamily="Khmer Moul, sans-serif"
                                 >
