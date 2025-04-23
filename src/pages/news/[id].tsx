@@ -190,7 +190,7 @@ export default function NewsDetailPage({ news: initialNews, relatedNews = [], er
                             <Text
                                 // as="h1"
                                 fontSize={{ base: "md", md: "xl" }}
-                                lineHeight="1.2"
+                                lineHeight="1.5"
                                 // fontFamily="Khmer Moul"
                                 fontFamily="'Kantumruy Pro', sans-serif"
                                 color={colors.gold}
