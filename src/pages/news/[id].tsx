@@ -112,7 +112,7 @@ export default function NewsDetailPage({ news: initialNews, relatedNews = [], er
 
     if (!news) {
         return (
-            <Container maxW="container.2xl">
+            <Container maxW="container.xl">
                 <Box textAlign="center">
                     <Heading mb={4} color="red.500">Article Not Found</Heading>
                     <Text mb={8}>The news article you're looking for could not be found.</Text>
