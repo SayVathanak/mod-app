@@ -122,14 +122,14 @@ export default function NewsDetailPage({ news: initialNews, relatedNews = [], er
                         >
                             <Box>
                                 <Text
-                                    fontSize={{ base: "md", md: "xl" }}
-                                    fontWeight="medium"
+                                    fontSize={{ base: "sm", md: "md" }}
+                                    // fontWeight="medium"
                                     mb={4}
                                     pb={2}
-                                    borderBottom="2px solid"
-                                    borderColor={colors.brightGold}
+                                    borderBottom="1px solid"
+                                    borderColor={colors.mutedGold}
                                     color={colors.gold}
-                                    fontFamily="'Kantumruy Pro', sans-serif"
+                                    fontFamily="'Moul Light', sans-serif"
                                 >
                                     ព័តមានទាក់ទង
                                 </Text>
@@ -183,11 +183,11 @@ export default function NewsDetailPage({ news: initialNews, relatedNews = [], er
                 {/* Mobile-only Related News Section */}
                 <Box display={{ base: "block", lg: "none" }} mt={10}>
                     <Text
-                        fontSize="lg"
-                        fontWeight="medium"
+                        fontSize="sm"
+                        // fontWeight="medium"
                         mb={6}
                         color={colors.gold}
-                        fontFamily="'Kantumruy Pro', sans-serif"
+                        fontFamily="'Moul Light', sans-serif"
                     >
                         ព័តមានទាក់ទង
                     </Text>

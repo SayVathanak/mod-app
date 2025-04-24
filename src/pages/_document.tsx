@@ -9,7 +9,7 @@ export default function Document() {
         <link href="https://fonts.googleapis.com/css2?family=Dangrek&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Battambang&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Bokor&family=Moul&display=swap" rel="stylesheet"/>
+        <link href="https://fonts.googleapis.com/css2?family=Bokor&display=swap" rel="stylesheet"/>
 
         {/* Latin fonts */}
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet" />

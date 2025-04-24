@@ -194,11 +194,15 @@ export const NewsDetail: React.FC<NewsDetailProps> = ({
             ) : (
                 <Text
                     as="h1"
-                    fontSize={{ base: "xl", md: "2xl", lg: "3xl" }}
-                    lineHeight="1.3"
-                    fontFamily="'Kantumruy Pro', sans-serif"
+                    fontSize={{ base: "sm", md: "lg"}}
+                    lineHeight="1.8"
+                    // fontFamily="'Kantumruy Pro', sans-serif"
+                        fontFamily="'Moul Light', sans-serif"
                     color={colors.gold}
-                    mb={6}
+                        mb={6}
+                    //     pb={"3"}
+                    //     borderBottom={"1px"}  
+                    // borderColor={colors.darkGreen}    
                 >
                     {news?.title}
                 </Text>
