@@ -162,11 +162,11 @@ export const NewsDetail: React.FC<NewsDetailProps> = ({
                     variant="ghost"
                     leftIcon={<FaArrowLeft />}
                     mb={6}
-                    color={colors.gold}
+                    color={colors.mutedGold}
                     _hover={{ bg: colors.darkGreen }}
-                    size={{ base: "sm", md: "md" }}
+                    size={{ base: "xs", md: "sm" }}
                 >
-                    Back to News
+                    <Text color={colors.mutedGold}>Back to News</Text>
                 </Button>
             </Link>
 
