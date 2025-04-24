@@ -25,6 +25,8 @@ import {
 } from "@chakra-ui/react";
 import { FaFilter } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { KhmerTitle } from "@/components/shared/KhmerTitle";
+import { colors } from "@/theme/colors";
 
 const MotionBox = motion(Box);
 
@@ -85,23 +87,27 @@ export default function VideosPage() {
                     align={["flex-start", "center"]}
                     mb={8}
                 >
-                    <Heading
-                        size="xl"
-                        borderBottom="4px solid"
-                        borderColor="brand.500"
-                        pb={2}
+                    <KhmerTitle
+                        fontSize={{ base: "md", md: "xl" }}
+                        borderBottom="1px solid"
+                        // borderColor="brand.500"
+                        borderColor="colors.gold"
+                        pb={3}
                         display="inline-block"
                     >
-                        Video Library
-                    </Heading>
+                        កម្រងវីដេអូ
+                    </KhmerTitle>
 
                     <HStack spacing={4} mt={[4, 0]}>
                         <Button
-                            leftIcon={<FaFilter />}
+                            leftIcon={<FaFilter color={colors.mutedGold} />}
                             variant="outline"
                             size="sm"
+                            borderColor={colors.midGreen}
                         >
-                            Filter
+                            <Text color={colors.mutedGold}>
+                                Filter
+                            </Text>
                         </Button>
                     </HStack>
                 </Flex>

@@ -85,7 +85,7 @@ export const NewsGrid = ({ newsItems, getReadTime, limit = 4 }: NewsGridProps) =
                                 */}
                                 <Text
                                     as="h4"
-                                    fontSize="xs"
+                                    fontSize={{ base: "xs", md: "sm" }}
                                     fontWeight="medium"
                                     mb={0.5}
                                     noOfLines={2}

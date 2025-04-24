@@ -21,6 +21,8 @@ import {
 } from "@chakra-ui/react";
 import { FaSearch, FaBookOpen, FaFilter, FaDownload } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { KhmerTitle } from "@/components/shared/KhmerTitle";
+import { colors } from "@/theme/colors";
 
 const MotionBox = motion(Box);
 
@@ -80,40 +82,57 @@ export default function BooksPage() {
                     mb={8}
                     width="100%"
                 >
-                    <Heading
-                        size="xl"
-                        borderBottom="4px solid"
-                        borderColor="brand.500"
-                        pb={2}
+                    <KhmerTitle
+                        fontSize={{ base: "md", md: "xl" }}
+                        borderBottom="1px solid"
+                        // borderColor="brand.500"
+                        borderColor="colors.gold"
+                        // color={colors.gold}
+                        pb={3}
                         display="inline-block"
                         mb={[4, 0]}
+                        width="fit-content"
                     >
-                        Books Library
-                    </Heading>
+                        កម្រងអត្ថបទ
+                    </KhmerTitle>
 
                     <HStack spacing={4} mt={[4, 0]} w={["100%", "auto"]}>
-                        <InputGroup maxW={["100%", "300px"]}>
-                            <InputLeftElement pointerEvents="none">
-                                <Icon as={FaSearch} color="gray.500" />
-                            </InputLeftElement>
+                        <InputGroup justifyContent="center" maxW={["100%", "300px"]}>
                             <Input
+                                _placeholder={{ color: colors.mutedGold }}
                                 placeholder="Search books..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                bg="dark.800"
-                                borderColor="dark.700"
+                                bg={colors.darkBg}
+                                borderColor={colors.midGreen}
                                 _hover={{ borderColor: "brand.500" }}
                                 _focus={{ borderColor: "brand.500", boxShadow: "none" }}
-                                size={["sm", "md"]}
+                                size={["xs", "sm"]}
+                                textAlign="start"
+                                pl="2.5rem" // Add space for icon
                             />
+                            <InputLeftElement pointerEvents="none" height="100%" justifyContent="center">
+                                <Icon as={FaSearch} color={colors.mutedGold} />
+                            </InputLeftElement>
                         </InputGroup>
-                        <Button
+                        {/* <Button
                             leftIcon={<FaFilter />}
                             variant="outline"
                             size="sm"
                             display={["none", "flex"]}
                         >
                             Filter
+                        </Button> */}
+                        <Button
+                            leftIcon={<FaFilter color={colors.mutedGold} />}
+                            variant="outline"
+                            size="sm"
+                            borderColor={colors.midGreen}
+                            display={["none", "flex"]}
+                        >
+                            <Text color={colors.mutedGold}>
+                                Filter
+                            </Text>
                         </Button>
                     </HStack>
                 </Flex>

@@ -21,10 +21,13 @@ import {
     useDisclosure,
     Container,
     useBreakpointValue,
-    HStack
+    HStack,
+    color
 } from "@chakra-ui/react";
 import { FaMapMarkedAlt, FaSearch, FaEye } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { KhmerTitle } from "@/components/shared/KhmerTitle";
+import { colors } from "@/theme/colors";
 
 const MotionBox = motion(Box);
 
@@ -83,23 +86,27 @@ export default function MapsPage() {
                     align={["flex-start", "center"]}
                     mb={8}
                 >
-                    <Heading
-                        size="xl"
-                        borderBottom="4px solid"
-                        borderColor="brand.500"
-                        pb={2}
+                    <KhmerTitle
+                        fontSize={{ base: "md", md: "xl" }}
+                        borderBottom="1px solid"
+                        // borderColor="brand.500"
+                        borderColor="colors.gold"
+                        pb={3}
                         display="inline-block"
                     >
-                        Explore Maps
-                    </Heading>
+                        កម្រងផែនទី កម្ពុជា
+                    </KhmerTitle>
 
                     <HStack spacing={4} mt={[4, 0]}>
                         <Button
-                            leftIcon={<FaSearch />}
+                            leftIcon={<FaSearch color={colors.mutedGold} />}
                             variant="outline"
                             size="sm"
+                            borderColor={colors.midGreen}
                         >
-                            Search
+                            <Text color={colors.mutedGold}>
+                                Search
+                            </Text>
                         </Button>
                     </HStack>
                 </Flex>

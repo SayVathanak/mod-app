@@ -3,6 +3,7 @@ import NextLink from "next/link";
 import { FaArrowRight, FaVideo, FaPlay } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { colors } from "../theme/colors";
+import { KhmerTitle } from "./shared/KhmerTitle";
 
 const MotionBox = motion(Box);
 
@@ -25,7 +26,7 @@ export const VideosSection = ({ videos }: VideosSectionProps) => {
                     viewport={{ once: true }}
                     variants={fadeInUp}
                 >
-                    <Heading size={{ base: "md", md: "lg" }} color={colors.gold}>Featured Videos</Heading>
+                    <KhmerTitle size={{ base: "sm", md: "md" }} color={colors.gold}>កម្រងវីដេអូ</KhmerTitle>
                 </MotionBox>
                 <MotionBox
                     initial={{ opacity: 0, x: 20 }}

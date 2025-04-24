@@ -4,6 +4,7 @@ import { FeaturedNews } from "./FeaturedNews";
 import { NewsGrid } from "./NewsGrid";
 import { colors } from "../theme/colors";
 import { AdditionalNews } from "./AdditionalNews ";
+import { KhmerTitle } from "./shared/KhmerTitle";
 
 const MotionBox = motion(Box);
 
@@ -28,10 +29,10 @@ export const NewsSection = ({ featuredNews, news, getReadTime }: NewsSectionProp
                 variants={fadeInUp}
                 mb={{ base: 8, md: 12 }}
             >
-                <Heading size={{ base: "lg", md: "xl" }} color={colors.gold} textAlign="center">
-                    Latest News & Updates
-                </Heading>
-                <Box width="100px" height="3px" bg={colors.brightGold} mx="auto" mt={3} mb={10} />
+                <KhmerTitle size={{ base: "sm", md: "md" }} color={colors.gold} textAlign="center">
+                        ព័ត៌មានថ្មីៗ និងព័ត៌មានបន្ថែម
+                </KhmerTitle>
+                <Box width="100px" height="2px" bg={colors.brightGold} mx="auto" mt={3} mb={10} />
             </MotionBox>
 
             {/* Featured Article + News Grid - Magazine Style Layout */}

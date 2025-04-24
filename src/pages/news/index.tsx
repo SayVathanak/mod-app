@@ -26,10 +26,11 @@ import {
     VStack,
     Avatar,
     LinkBox,
-    LinkOverlay
+    LinkOverlay,
+    InputLeftElement
 } from "@chakra-ui/react";
 import NextLink from "next/link";
-import { FaCalendarAlt, FaArrowRight, FaSearch, FaUser, FaClock, FaTag, FaExclamationCircle, FaTimes } from "react-icons/fa";
+import { FaFilter, FaCalendarAlt, FaArrowRight, FaSearch, FaUser, FaClock, FaTag, FaExclamationCircle, FaTimes } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Head from "next/head";
 import { KhmerTitle } from "@/components/shared/KhmerTitle";
@@ -194,70 +195,56 @@ export default function NewsPage() {
                         transition={{ duration: 0.5 }}
                         mb={5}
                     >
-                        <Box
-                            display="grid"
-                            gridTemplateColumns={{ base: "1fr", md: "1fr 1fr 1fr" }}
-                            alignItems="center"
+                        <Flex
+                            direction={["column", "row"]}
+                            justify={["center", "space-between"]}
+                            align={["stretch", "center"]}
+                            mb={8}
+                            width="100%"
                             gap={4}
                         >
-                            {/* Left Spacer */}
-                            <Box display={{ base: "none", md: "block" }} />
-
-                            {/* Center Title */}
                             <KhmerTitle
-                                size="sm"
-                                color={colors.gold}
-                                textAlign="center"
-                                mb={{ base: 0, md: 0 }}
+                                fontSize={{ base: "md", md: "xl" }}
+                                borderBottom="1px solid"
+                                borderColor={colors.gold}
+                                pb={3}
+                                display="inline-block"
+                                width="fit-content"
                             >
                                 ព័តមានទូទៅ
-                                <Box
-                                    width="120px"
-                                    height="1px"
-                                    bg={colors.brightGold}
-                                    mx="auto"
-                                    mt={2}
-                                />
                             </KhmerTitle>
 
-                            {/* Right Search Icon / Input */}
-                            <Flex justify="flex-end" align="centre" display={{ base: "none", md: "block" }}>
-                                {showSearch ? (
-                                    <InputGroup maxW="300px">
-                                        <Input
-                                            borderColor={colors.midGreen}
-                                            placeholder="Search articles..."
-                                            value={searchQuery}
-                                            onChange={(e) => setSearchQuery(e.target.value)}
-                                            bg={colors.darkGreen}
-                                            color={colors.textLight}
-                                            _placeholder={{ color: colors.textMuted }}
-                                            _hover={{ borderColor: colors.gold, bg: colors.darkGreen }}
-                                            _focus={{
-                                                borderColor: colors.brightGold,
-                                                boxShadow: `0 0 0 1px ${colors.brightGold}`,
-                                            }}
-                                        />
-                                        <InputRightElement>
-                                            <Icon
-                                                as={FaTimes}
-                                                color={colors.gold}
-                                                cursor="pointer"
-                                                onClick={() => setShowSearch(false)}
-                                            />
-                                        </InputRightElement>
-                                    </InputGroup>
-                                ) : (
-                                    <Icon
-                                        as={FaSearch}
-                                        boxSize={6}
-                                        color={colors.gold}
-                                        cursor="pointer"
-                                        onClick={() => setShowSearch(true)}
+                            <HStack spacing={4} mt={[4, 0]} w={["100%", "auto"]}>
+                                <InputGroup justifyContent="center" maxW={["100%", "300px"]}>
+                                    <Input
+                                        _placeholder={{ color: colors.mutedGold }}
+                                        placeholder="Search articles..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        bg={colors.darkBg}
+                                        borderColor={colors.midGreen}
+                                        _hover={{ borderColor: "brand.500" }}
+                                        _focus={{ borderColor: "brand.500", boxShadow: "none" }}
+                                        size={["xs", "sm"]}
+                                        textAlign="start"
+                                        pl="2.5rem"
                                     />
-                                )}
-                            </Flex>
-                        </Box>
+                                    <InputLeftElement pointerEvents="none" height="100%" justifyContent="center">
+                                        <Icon as={FaSearch} color={colors.mutedGold} />
+                                    </InputLeftElement>
+                                </InputGroup>
+
+                                <Button
+                                    leftIcon={<FaFilter color={colors.mutedGold} />}
+                                    variant="outline"
+                                    size="sm"
+                                    borderColor={colors.midGreen}
+                                    display={["none", "flex"]}
+                                >
+                                    <Text color={colors.mutedGold}>Filter</Text>
+                                </Button>
+                            </HStack>
+                        </Flex>
                     </MotionBox>
 
                     {/* Featured Article - Hero Section */}
@@ -332,14 +319,14 @@ export default function NewsPage() {
                                                 {featured.title}
                                             </Text>
                                             <Text
-                                              color="gray.300"
-                                              noOfLines={2}
-                                              fontSize={{ base: "xs", md: "sm" }}
-                                              mb={4}
-                                              fontFamily="'Kantumruy Pro', sans-serif"
-                                              maxW="800px"
+                                                color="gray.300"
+                                                noOfLines={2}
+                                                fontSize={{ base: "xs", md: "sm" }}
+                                                mb={4}
+                                                fontFamily="'Kantumruy Pro', sans-serif"
+                                                maxW="800px"
                                             >
-                                              {featured.body}
+                                                {featured.body}
                                             </Text>
                                             <HStack spacing={6} color={colors.textLight} fontSize="sm">
                                                 <Flex align="center">
@@ -413,7 +400,7 @@ export default function NewsPage() {
                                                 mb={2}
                                                 color={colors.textLight}
                                                 //fontFamily="Khmer Moul, sans-serif"
-fontFamily="'Kantumruy Pro', sans-serif"
+                                                fontFamily="'Kantumruy Pro', sans-serif"
                                             >
                                                 {featured.title}
                                             </Text>
@@ -439,7 +426,7 @@ fontFamily="'Kantumruy Pro', sans-serif"
                                 <KhmerTitle
                                     size="sm"
                                     color={colors.brightGold}
-                                    //fontFamily="Khmer Moul, sans-serif"
+                                //fontFamily="Khmer Moul, sans-serif"
                                 >
                                     ព័ត៌មានថ្មីៗ
                                 </KhmerTitle>
@@ -494,7 +481,7 @@ fontFamily="'Kantumruy Pro', sans-serif"
                                                     mb={3}
                                                     color={colors.textLight}
                                                     //fontFamily="Khmer Moul, sans-serif"
-fontFamily="'Kantumruy Pro', sans-serif"
+                                                    fontFamily="'Kantumruy Pro', sans-serif"
                                                 >
                                                     {trending[0].title}
                                                 </Text>
@@ -584,8 +571,8 @@ fontFamily="'Kantumruy Pro', sans-serif"
                                                                 size="sm"
                                                                 mb={2}
                                                                 color={colors.textLight}
-fontFamily="'Kantumruy Pro', sans-serif"
-                                                                //fontFamily="Khmer Moul, sans-serif"
+                                                                fontFamily="'Kantumruy Pro', sans-serif"
+                                                            //fontFamily="Khmer Moul, sans-serif"
                                                             >
                                                                 {item.title}
                                                             </Text>
@@ -626,7 +613,7 @@ fontFamily="'Kantumruy Pro', sans-serif"
                                     <KhmerTitle
                                         size="sm"
                                         color={colors.brightGold}
-                                        //fontFamily="Khmer Moul, sans-serif"
+                                    //fontFamily="Khmer Moul, sans-serif"
                                     >
                                         ជ្រើសរើសដោយអ្នកនិពន្ធ
                                     </KhmerTitle>
@@ -708,7 +695,7 @@ fontFamily="'Kantumruy Pro', sans-serif"
                                 <KhmerTitle
                                     size="sm"
                                     color={colors.gold}
-                                    //fontFamily="Khmer Moul, sans-serif"
+                                //fontFamily="Khmer Moul, sans-serif"
                                 >
                                     ព័ត៌មានថ្មីបំផុត
                                 </KhmerTitle>
@@ -826,7 +813,7 @@ fontFamily="'Kantumruy Pro', sans-serif"
                                                                 mb={3}
                                                                 color={colors.textLight}
                                                                 //fontFamily="Khmer Moul, sans-serif"
-fontFamily="'Kantumruy Pro', sans-serif"
+                                                                fontFamily="'Kantumruy Pro', sans-serif"
                                                             >
                                                                 {item.title}
                                                             </Text>
