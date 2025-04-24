@@ -192,7 +192,7 @@ export const NewsDetail: React.FC<NewsDetailProps> = ({
             {isLoading ? (
                 <Skeleton height="40px" mb={6} />
             ) : (
-                <Heading
+                <Text
                     as="h1"
                     fontSize={{ base: "xl", md: "2xl", lg: "3xl" }}
                     lineHeight="1.3"
@@ -201,7 +201,7 @@ export const NewsDetail: React.FC<NewsDetailProps> = ({
                     mb={6}
                 >
                     {news?.title}
-                </Heading>
+                </Text>
             )}
 
             {/* Main Image */}
