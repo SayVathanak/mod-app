@@ -107,7 +107,7 @@ export default function BooksPage() {
                                 borderColor={colors.midGreen}
                                 _hover={{ borderColor: "brand.500" }}
                                 _focus={{ borderColor: "brand.500", boxShadow: "none" }}
-                                size={["xs", "sm"]}
+                                size={["sm", "sm"]}
                                 textAlign="start"
                                 pl="2.5rem" // Add space for icon
                             />
