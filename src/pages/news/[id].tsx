@@ -1,36 +1,15 @@
 // pages/news/[id].tsx
 import { GetServerSideProps } from "next";
 import Head from "next/head";
-import {
-    Box,
-    Heading,
-    Text,
-    Image,
-    Container,
-    Flex,
-    Icon,
-    HStack,
-    Badge,
-    Link,
-    Button,
-    Divider,
-    Avatar,
-    useToast,
-    Spinner,
-    Grid,
-    GridItem,
-    VStack
-} from "@chakra-ui/react";
-import { FaCalendarAlt, FaArrowLeft, FaShare, FaBookmark } from "react-icons/fa";
+import { Container, Box, Button, Spinner, Text, Grid, GridItem } from "@chakra-ui/react";
+import { FaArrowLeft } from "react-icons/fa";
 import NextLink from "next/link";
-import { motion } from "framer-motion";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { NewsGrid } from "@/components/NewsGrid";
 import { colors } from "@/theme/colors";
-import { KhmerTitle } from "@/components/shared/KhmerTitle";
-
-const MotionBox = motion(Box);
+import { NewsDetail } from "@/components/NewsDetail";
+import { calculateReadTime } from "@/utils/textUtils";
 
 type NewsItem = {
     _id: string;
@@ -51,22 +30,9 @@ type Props = {
 
 export default function NewsDetailPage({ news: initialNews, relatedNews = [], error }: Props) {
     const router = useRouter();
-    const toast = useToast();
+    const { id } = router.query;
     const [news, setNews] = useState(initialNews);
     const [isLoading, setIsLoading] = useState(false);
-    const { id } = router.query;
-
-    useEffect(() => {
-        if (error) {
-            toast({
-                title: "Error",
-                description: error,
-                status: "error",
-                duration: 5000,
-                isClosable: true,
-            });
-        }
-    }, [error, toast]);
 
     useEffect(() => {
         // Client-side fallback if SSR fails
@@ -79,48 +45,42 @@ export default function NewsDetailPage({ news: initialNews, relatedNews = [], er
                     const data = await res.json();
                     setNews(data);
                 } catch (err) {
-                    toast({
-                        title: "Error",
-                        description: "Failed to load article",
-                        status: "error",
-                        duration: 5000,
-                        isClosable: true,
-                    });
+                    console.error("Failed to load article:", err);
                 } finally {
                     setIsLoading(false);
                 }
             }
         };
         fetchNews();
-    }, [id, news, error, toast]);
+    }, [id, news, error]);
 
-    const getReadTime = (text: string) => {
-        const wordsPerMinute = 200;
-        const wordCount = text.trim().split(/\s+/).length;
-        const minutes = Math.ceil(wordCount / wordsPerMinute);
-        return `${minutes} min read`;
-    };
+    // SEO metadata
+    const pageTitle = news ? `${news.title} | Ministry of National Defense` : "Article | Ministry of National Defense";
+    const pageDescription = news ? news.body.slice(0, 150) : "Ministry of National Defense news article";
 
     if (isLoading) {
         return (
             <Container maxW="container.xl" py={16} centerContent>
-                <Spinner size="xl" thickness="4px" speed="0.65s" />
-                <Text mt={4}>Loading article...</Text>
+                <Spinner size="xl" thickness="4px" speed="0.65s" color={colors.gold} />
+                <Text mt={4} color={colors.textLight}>Loading article...</Text>
             </Container>
         );
     }
 
-    if (!news) {
+    if (!news && !isLoading) {
         return (
             <Container maxW="container.xl">
-                <Box textAlign="center">
-                    <Heading mb={4} color="red.500">Article Not Found</Heading>
-                    <Text mb={8}>The news article you're looking for could not be found.</Text>
+                <Box textAlign="center" py={12}>
+                    <Text fontSize="xl" mb={4} color="red.500">Article Not Found</Text>
+                    <Text mb={8} color={colors.textLight}>The news article you're looking for could not be found.</Text>
                     <Button
                         as={NextLink}
                         href="/news"
                         colorScheme="brand"
                         leftIcon={<FaArrowLeft />}
+                        bg={colors.midGreen}
+                        color={colors.brightGold}
+                        _hover={{ bg: colors.darkGreen }}
                     >
                         Back to News
                     </Button>
@@ -129,23 +89,14 @@ export default function NewsDetailPage({ news: initialNews, relatedNews = [], er
         );
     }
 
-    // Format date if it exists
-    const formattedDate = news.createdAt
-        ? new Date(news.createdAt).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        })
-        : "Recent";
-
     return (
         <>
             <Head>
-                <title>{news.title} | Ministry of National Defense</title>
-                <meta name="description" content={news.body.slice(0, 150)} />
-                <meta property="og:title" content={`${news.title} | Ministry of National Defense`} />
-                <meta property="og:description" content={news.body.slice(0, 150)} />
-                {news.imageUrl && <meta property="og:image" content={news.imageUrl} />}
+                <title>{pageTitle}</title>
+                <meta name="description" content={pageDescription} />
+                <meta property="og:title" content={pageTitle} />
+                <meta property="og:description" content={pageDescription} />
+                {news?.imageUrl && <meta property="og:image" content={news.imageUrl} />}
             </Head>
 
             <Container maxW="container.xl" px={{ base: 4, md: 8 }}>
@@ -155,181 +106,28 @@ export default function NewsDetailPage({ news: initialNews, relatedNews = [], er
                 >
                     {/* Main Content Column */}
                     <GridItem>
-                        <MotionBox
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5 }}
-                            maxW={{ base: "100%", lg: "100%" }}
+                        {news && (
+                            <NewsDetail
+                                id={id as string}
+                                initialData={news}
+                            />
+                        )}
+                    </GridItem>
+
+                    {/* Right Sidebar - Related News */}
+                    <GridItem display={{ base: "none", lg: "block" }}>
+                        <Box
+                            position="sticky"
+                            top="100px"
                         >
-                            <Link as={NextLink} href="/news">
-                                <Button
-                                    variant="ghost"
-                                    leftIcon={<FaArrowLeft />}
-                                    mb={6}
-                                    color={colors.gold}
-                                    _hover={{ bg: colors.darkGreen }}
-                                    size={{ base: "sm", md: "md" }}
-                                >
-                                    Back to News
-                                </Button>
-                            </Link>
-
-                            {news.category && (
-                                <Badge
-                                    bg={colors.darkGreen}
-                                    color={colors.brightGold}
-                                    mb={4}
-                                    fontSize={{ base: "xs", md: "sm" }}
-                                    px={2}
-                                    py={1}
-                                >
-                                    {news.category}
-                                </Badge>
-                            )}
-
-                            <Text
-                                // as="h1"
-                                fontSize={{ base: "md", md: "xl" }}
-                                lineHeight="1.5"
-                                // fontFamily="Khmer Moul"
-                                fontFamily="'Kantumruy Pro', sans-serif"
-                                color={colors.gold}
-                                mb={6}
-                            >
-                                {news.title}
-                            </Text>
-
-                            {news.imageUrl && (
-                                <Box
-                                    mb={8}
-                                    borderRadius="lg"
-                                    overflow="hidden"
-                                    boxShadow="dark-lg"
-                                    position="relative"
-                                    minH={{ base: "200px", md: "400px" }}
-                                >
-                                    <Image
-                                        src={news.imageUrl}
-                                        alt={news.title}
-                                        w="100%"
-                                        h="auto"
-                                        objectFit="cover"
-                                        fallback={
-                                            <Flex
-                                                h={{ base: "200px", md: "400px" }}
-                                                bg={colors.darkBg}
-                                                align="center"
-                                                justify="center"
-                                            >
-                                                <Text>Image not available</Text>
-                                            </Flex>
-                                        }
-                                    />
-                                </Box>
-                            )}
-
-                            <Box
-                                fontSize={{ base: "sm", md: "sm" }}
-                                color={colors.textLight}
-                                whiteSpace="pre-wrap"
-                                lineHeight="1.8"
-                                className="article-content"
-                            >
-                                {news.body.split('\n').map((paragraph, idx) => (
-                                    <Text key={idx} mb={4} fontFamily="'Kantumruy Pro', sans-serif">
-                                        {paragraph}
-                                    </Text>
-                                ))}
-                            </Box>
-                            <Flex
-                                flexWrap="wrap"
-                                justify="space-between"
-                                mb={{ base: 4, md: 6 }}
-                                align="center"
-                                bg={colors.darkBgAlt}
-                                p={{ base: 3, md: 4 }}
-                                borderRadius="md"
-                                width="100%"
-                                gap={3}
-                            >
-                                <HStack spacing={3} width={{ base: "auto", sm: "auto" }}>
-                                    <Avatar
-                                        size={{ base: "xs", md: "sm" }}
-                                        name={news.author || "Author"}
-                                        bg={colors.midGreen}
-                                    />
-                                    <Box>
-                                        <Text
-                                            fontSize={{ base: "xs", md: "xs" }}
-                                            fontFamily="'Kantumruy Pro', sans-serif"
-                                            color={colors.textLight}
-                                        >
-                                            {news.author || "Say Vathanak"}
-                                        </Text>
-                                        <HStack fontSize={{ base: "2xs", md: "xs" }} color={colors.textMuted} spacing={1}>
-                                            <Icon as={FaCalendarAlt} boxSize={{ base: "8px", md: "10px" }} />
-                                            <Text fontFamily="'Kantumruy Pro', sans-serif">{formattedDate}</Text>
-                                            {news.readTime && (
-                                                <>
-                                                    <Text>•</Text>
-                                                    <Text fontFamily="'Kantumruy Pro', sans-serif">{news.readTime}</Text>
-                                                </>
-                                            )}
-                                        </HStack>
-                                    </Box>
-                                </HStack>
-
-                                <HStack
-                                    spacing={3}
-                                    width={{ base: "auto", sm: "auto" }}
-                                    justify="flex-end"
-                                >
-                                    <Icon
-                                        as={FaShare}
-                                        color={colors.textMuted}
-                                        cursor="pointer"
-                                        _hover={{ color: colors.brightGold }}
-                                        boxSize={{ base: "14px", md: "16px" }}
-                                    />
-                                    <Icon
-                                        as={FaBookmark}
-                                        color={colors.textMuted}
-                                        cursor="pointer"
-                                        _hover={{ color: colors.brightGold }}
-                                        boxSize={{ base: "14px", md: "16px" }}
-                                    />
-                                </HStack>
-                            </Flex>
-
-                            <Divider my={10} opacity={0.3} />
-
-                            <Flex justify="space-between" align="center" mb={8}>
-                                <Button
-                                    variant="outline"
-                                    isDisabled
-                                    borderColor={colors.midGreen}
-                                    color={colors.gold}
-                                    _hover={{ bg: colors.darkGreen }}
-                                >
-                                    Previous Article
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    isDisabled
-                                    borderColor={colors.midGreen}
-                                    color={colors.gold}
-                                    _hover={{ bg: colors.darkGreen }}
-                                >
-                                    Next Article
-                                </Button>
-                            </Flex>
-
-                            {/* Mobile-only Related News Section */}
-                            <Box display={{ base: "block", lg: "none" }} mt={10}>
+                            <Box>
                                 <Text
-                                    as="h3"
-                                    size="md"
-                                    mb={6}
+                                    fontSize={{ base: "md", md: "xl" }}
+                                    fontWeight="medium"
+                                    mb={4}
+                                    pb={2}
+                                    borderBottom="2px solid"
+                                    borderColor={colors.brightGold}
                                     color={colors.gold}
                                     fontFamily="'Kantumruy Pro', sans-serif"
                                 >
@@ -337,85 +135,68 @@ export default function NewsDetailPage({ news: initialNews, relatedNews = [], er
                                 </Text>
                                 <NewsGrid
                                     newsItems={relatedNews}
-                                    getReadTime={getReadTime}
-                                    limit={4}
+                                    getReadTime={calculateReadTime}
+                                    limit={5}
                                 />
                             </Box>
-                        </MotionBox>
-                    </GridItem>
 
-                    {/* Right Sidebar - Related News */}
-                    <GridItem display={{ base: "none", lg: "block" }}>
-                        <MotionBox
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.5, delay: 0.2 }}
-                            position="sticky"
-                            top="100px"
-                        >
-                            <VStack align="stretch" spacing={6}>
-                                <Box>
-                                    <Text
-                                        as="h3"
-                                        size="md"
-                                        fontSize={{ base: "md", md: "xl" }}
-                                        fontWeight={"medium"}
-                                        mb={4}
-                                        pb={2}
-                                        borderBottom="2px solid"
-                                        borderColor={colors.brightGold}
-                                        color={colors.gold}
-                                        fontFamily="'Kantumruy Pro', sans-serif"
-                                    >
-                                        ព័តមានទាក់ទង
-                                    </Text>
-                                    <NewsGrid
-                                        newsItems={relatedNews}
-                                        getReadTime={getReadTime}
-                                        limit={5}
-                                    />
-                                </Box>
-
-                                <Box
-                                    p={4}
-                                    bg={colors.darkBgAlt}
-                                    borderRadius="md"
-                                    borderLeft="4px solid"
-                                    borderColor={colors.brightGold}
+                            <Box
+                                p={4}
+                                mt={8}
+                                bg={colors.darkBgAlt}
+                                borderRadius="md"
+                                borderLeft="4px solid"
+                                borderColor={colors.brightGold}
+                            >
+                                <Text
+                                    fontSize="sm"
+                                    fontWeight="medium"
+                                    mb={3}
+                                    color={colors.gold}
+                                    fontFamily="'Kantumruy Pro', sans-serif"
                                 >
-                                    <Heading
-                                        as="h4"
-                                        size="sm"
-                                        mb={3}
-                                        color={colors.gold}
-                                        fontFamily="'Kantumruy Pro', sans-serif"
-                                    >
-                                        Defense Newsletter
-                                    </Heading>
-                                    <Text
-                                        fontSize="sm"
-                                        mb={4}
-                                        color={colors.textMuted}
-                                        fontFamily="'Kantumruy Pro', sans-serif"
-                                    >
-                                        Stay updated with the latest news from the Ministry of National Defense
-                                    </Text>
-                                    <Button
-                                        size="sm"
-                                        width="100%"
-                                        colorScheme="green"
-                                        bg={colors.midGreen}
-                                        _hover={{ bg: colors.darkGreen }}
-                                        color={colors.brightGold}
-                                        fontFamily="'Kantumruy Pro', sans-serif"
-                                    >
-                                        Subscribe
-                                    </Button>
-                                </Box>
-                            </VStack>
-                        </MotionBox>
+                                    Defense Newsletter
+                                </Text>
+                                <Text
+                                    fontSize="sm"
+                                    mb={4}
+                                    color={colors.textMuted}
+                                    fontFamily="'Kantumruy Pro', sans-serif"
+                                >
+                                    Stay updated with the latest news from the Ministry of National Defense
+                                </Text>
+                                <Button
+                                    size="sm"
+                                    width="100%"
+                                    bg={colors.midGreen}
+                                    _hover={{ bg: colors.darkGreen }}
+                                    color={colors.brightGold}
+                                    fontFamily="'Kantumruy Pro', sans-serif"
+                                >
+                                    Subscribe
+                                </Button>
+                            </Box>
+                        </Box>
                     </GridItem>
                 </Grid>
+
+                {/* Mobile-only Related News Section */}
+                <Box display={{ base: "block", lg: "none" }} mt={10}>
+                    <Text
+                        fontSize="lg"
+                        fontWeight="medium"
+                        mb={6}
+                        color={colors.gold}
+                        fontFamily="'Kantumruy Pro', sans-serif"
+                    >
+                        ព័តមានទាក់ទង
+                    </Text>
+                    <NewsGrid
+                        newsItems={relatedNews}
+                        getReadTime={calculateReadTime}
+                        limit={4}
+                    />
+                </Box>
             </Container>
         </>
     );
@@ -425,50 +206,36 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
     const { id } = context.params!;
 
     try {
-        // Use absolute URL that works in any environment
+        // Build base URL for API requests based on environment
         const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
         const host = context.req.headers.host || 'localhost:3000';
         const baseUrl = `${protocol}://${host}`;
-        const url = `${baseUrl}/api/news/${id}`;
 
-        console.log(`Fetching news from: ${url}`);
+        // Fetch the news article
+        const newsResponse = await fetch(`${baseUrl}/api/news/${id}`);
 
-        const res = await fetch(url);
-
-        if (!res.ok) {
-            throw new Error(`Failed to fetch: ${res.status}`);
+        if (!newsResponse.ok) {
+            throw new Error(`Failed to fetch: ${newsResponse.status}`);
         }
 
-        const news = await res.json();
+        const news = await newsResponse.json();
 
-        if (!news) {
-            return {
-                props: {
-                    news: null,
-                    error: "Article not found"
-                }
-            };
+        // Add read time if not present
+        if (news && !news.readTime) {
+            news.readTime = calculateReadTime(news.body);
         }
 
-        // Fetch related news (you might want to implement an actual related news API)
-        let relatedNews = [];
-        try {
-            const relatedRes = await fetch(`${baseUrl}/api/news?limit=5&exclude=${id}`);
-            if (relatedRes.ok) {
-                relatedNews = await relatedRes.json();
-            }
-        } catch (error) {
-            console.error("Error fetching related news:", error);
-        }
+        // Fetch related news in parallel
+        const relatedNewsPromise = fetch(`${baseUrl}/api/news?limit=5&exclude=${id}`);
+
+        // Wait for related news response
+        const relatedNewsResponse = await relatedNewsPromise;
+        const relatedNews = relatedNewsResponse.ok ? await relatedNewsResponse.json() : [];
 
         return {
             props: {
                 news,
-                relatedNews,
-                // Add readTime if not present
-                ...(!news.readTime && {
-                    readTime: calculateReadTime(news.body)
-                })
+                relatedNews
             }
         };
     } catch (error) {
@@ -482,11 +249,3 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
         };
     }
 };
-
-// Helper function to calculate read time
-function calculateReadTime(text: string): string {
-    const wordsPerMinute = 200;
-    const wordCount = text.trim().split(/\s+/).length;
-    const minutes = Math.ceil(wordCount / wordsPerMinute);
-    return `${minutes} min read`;
-}

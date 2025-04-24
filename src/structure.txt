@@ -1,10 +1,19 @@
 Folder PATH listing
-Volume serial number is 908B-33F9
+Volume serial number is D2A3-B43A
 C:.
 |   structure.txt
 |   
 +---components
+|   |   AdditionalNews .tsx
 |   |   AdminDashboard.tsx
+|   |   AdminLayout.tsx
+|   |   BooksSection.tsx
+|   |   FeaturedNews.tsx
+|   |   HeroSlider.tsx
+|   |   NewsGrid.tsx
+|   |   NewsSection.tsx
+|   |   ResourcesSection.tsx
+|   |   VideosSection.tsx
 |   |   
 |   +---books
 |   |       BookCard.tsx
@@ -15,14 +24,12 @@ C:.
 |   |       MainLayout.tsx
 |   |       
 |   +---shared
+|   |       ContentFontTitle.tsx
 |   |       KhmerTitle.tsx
 |   |       
 |   \---ui
 |           Card.tsx
 |           
-+---context
-|       AuthContext.tsx
-|       
 +---lib
 |       cloudinary.ts
 |       mongodb.ts
@@ -35,6 +42,7 @@ C:.
 |       Video.ts
 |       
 +---pages
+|   |   404.tsx
 |   |   index.tsx
 |   |   _app.tsx
 |   |   _document.tsx
@@ -49,11 +57,6 @@ C:.
 |   +---api
 |   |   |   upload.ts
 |   |   |   
-|   |   +---auth
-|   |   |       login.ts
-|   |   |       protected.ts
-|   |   |       register.ts
-|   |   |       
 |   |   +---books
 |   |   |       index.ts
 |   |   |       
@@ -66,13 +69,6 @@ C:.
 |   |   |       
 |   |   \---videos
 |   |           index.ts
-|   |           
-|   +---auth
-|   |   +---login
-|   |   |       [[...index]].tsx
-|   |   |       
-|   |   \---register
-|   |           [[...index]].tsx
 |   |           
 |   +---books
 |   |       index.tsx
@@ -94,6 +90,4 @@ C:.
 |       colors.ts
 |       index.ts
 |       
-\---utils
-        mongodb.ts
-        
+\---types
